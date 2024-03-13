@@ -4,8 +4,8 @@ import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 
 @SpringBootTest
-class FishAppApplicationTests {
-
+class FishAppApplicationTests { 
+    
 	@Test
 	void contextLoads() {
 	}
