@@ -1,5 +1,6 @@
 package com.of.fishapp.web;
 
+import com.of.fishapp.entity.Location;
 import com.of.fishapp.entity.User;
 import com.of.fishapp.exception.EntityNotFoundException;
 import com.of.fishapp.service.UserService;
@@ -16,10 +17,14 @@ import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 
 public class UserControllerTest {
@@ -40,7 +45,6 @@ public class UserControllerTest {
 
     @Test
     void findById_returnsUser() {
-        MockitoAnnotations.openMocks(this);
 
         User user = new User();
         user.setUsername("test");
@@ -55,7 +59,6 @@ public class UserControllerTest {
 
     @Test
     void createUser_returnsCreated() {
-        MockitoAnnotations.openMocks(this);
 
         User user = new User();
         when(userService.saveUser(user)).thenReturn(user);
@@ -74,5 +77,50 @@ public class UserControllerTest {
                 .andReturn();
 
         assertEquals(HttpStatus.NOT_FOUND.value(), mvcResult.getResponse().getStatus());
+    }
+
+    @Test
+    void getLocationsByUserId_returnsLocations() {
+        UUID userId = UUID.randomUUID();
+        User user = new User();
+        user.setId(userId);
+        user.setUsername("test");
+
+        List<Location> locations = List.of(new Location());
+        user.setLocations(locations);
+
+        when(userService.getUser(userId)).thenReturn(user);
+
+        ResponseEntity<List<Location>> response = controller.getLocationsByUserId(userId);
+
+        assertEquals(HttpStatus.OK, response.getStatusCode());
+        assertEquals(locations, response.getBody());
+    }
+
+    @Test
+    void getLocationsByUserId_returnsNotFound_whenUserNotFound() {
+        UUID userId = UUID.randomUUID();
+        when(userService.getUser(userId)).thenThrow(new EntityNotFoundException(userId, User.class));
+
+        assertThrows(EntityNotFoundException.class, () -> {
+            controller.getLocationsByUserId(userId);
+        });
+    }
+
+    @SuppressWarnings("null")
+    @Test
+    void getLocationsByUserId_returnsEmptyList_whenUserHasNoLocations() {
+        UUID userId = UUID.randomUUID();
+        User user = new User();
+        user.setId(userId);
+        user.setUsername("test");
+        user.setLocations(new ArrayList<>());
+
+        when(userService.getUser(userId)).thenReturn(user);
+
+        ResponseEntity<List<Location>> response = controller.getLocationsByUserId(userId);
+
+        assertEquals(HttpStatus.OK, response.getStatusCode());
+        assertTrue(response.getBody().isEmpty());
     }
 }
