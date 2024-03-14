@@ -1,7 +1,10 @@
 package com.of.fishapp.dto;
 
+import java.util.UUID;
+
+import org.hibernate.annotations.GenericGenerator;
+
 import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 
 import lombok.AllArgsConstructor;
@@ -16,8 +19,9 @@ import lombok.Setter;
 public class Location {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private long id;
+    @GeneratedValue(generator = "UUID")
+    @GenericGenerator(name = "UUID", strategy = "org.hibernate.id.UUIDGenerator")
+    private UUID id;
 
     private double lat;
     private double lng;
