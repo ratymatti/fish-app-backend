@@ -16,7 +16,7 @@ import lombok.Setter;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-public class Location {
+public class Geolocation {
 
     @Id
     @GeneratedValue(generator = "UUID")
