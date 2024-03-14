@@ -20,6 +20,8 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 
+import java.util.UUID;
+
 public class UserControllerTest {
 
     @Mock
@@ -42,9 +44,10 @@ public class UserControllerTest {
 
         User user = new User();
         user.setUsername("test");
-        when(userService.getUser(1L)).thenReturn(user);
+        UUID userId = UUID.randomUUID();
+        when(userService.getUser(userId)).thenReturn(user);
 
-        ResponseEntity<String> response = controller.findById(1L);
+        ResponseEntity<String> response = controller.findById(userId);
 
         assertEquals(HttpStatus.OK, response.getStatusCode());
         assertEquals("test", response.getBody());
@@ -64,9 +67,10 @@ public class UserControllerTest {
 
     @Test
     void findById_returnsNotFound_whenUserNotFound() throws Exception {
-        when(userService.getUser(any(Long.class))).thenThrow(new EntityNotFoundException(1L, User.class));
+        UUID userId = UUID.randomUUID();
+        when(userService.getUser(any(UUID.class))).thenThrow(new EntityNotFoundException(userId, User.class));
 
-        MvcResult mvcResult = mockMvc.perform(get("/1"))
+        MvcResult mvcResult = mockMvc.perform(get("/" + userId.toString()))
                 .andReturn();
 
         assertEquals(HttpStatus.NOT_FOUND.value(), mvcResult.getResponse().getStatus());
