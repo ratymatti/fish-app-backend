@@ -10,6 +10,7 @@ import com.of.fishapp.dto.Geolocation;
 
 import jakarta.annotation.Nonnull;
 import jakarta.persistence.Column;
+import jakarta.persistence.Embedded;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.Id;
@@ -35,6 +36,7 @@ public class Fish {
     @GenericGenerator(name = "UUID", strategy = "org.hibernate.id.UUIDGenerator")
     private UUID id;
 
+    @Embedded
     private Geolocation geolocation;
 
     @NotBlank
