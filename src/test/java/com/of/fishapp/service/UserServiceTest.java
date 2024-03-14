@@ -15,6 +15,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.util.Optional;
+import java.util.UUID;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -24,21 +25,22 @@ public class UserServiceTest {
 
     @Mock
     private UserRepository userRepository;
-    
+
     @Mock
     private BCryptPasswordEncoder bCryptPasswordEncoder;
-
 
     @InjectMocks
     private UserServiceImpl userService;
 
+    @SuppressWarnings("null")
     @Test
     void getUserById_returnsUser() {
         User expectedUser = new User();
-        expectedUser.setId(1L);
-        when(userRepository.findById(1L)).thenReturn(Optional.of(expectedUser));
+        UUID userId = UUID.randomUUID();
+        expectedUser.setId(userId);
+        when(userRepository.findById(userId)).thenReturn(Optional.of(expectedUser));
 
-        User actualUser = userService.getUser(1L);
+        User actualUser = userService.getUser(userId);
 
         assertEquals(expectedUser, actualUser);
     }
