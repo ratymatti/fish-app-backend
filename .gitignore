@@ -35,3 +35,6 @@ build/
 ### DS_STORE ###
 
 .DS_STORE
+
+### dotenv ###
+.env
