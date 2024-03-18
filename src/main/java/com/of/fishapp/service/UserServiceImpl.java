@@ -44,9 +44,10 @@ public class UserServiceImpl implements UserService {
     }
 
     static User unwrapUser(Optional<User> entity, Optional<UUID> id) {
-        if (entity.isPresent())
+        if (entity.isPresent()) {
             return entity.get();
-        else
-            throw new EntityNotFoundException(id, User.class);
+        } else {
+                throw new EntityNotFoundException(id.get(), User.class);    
+        }
     }
 }
