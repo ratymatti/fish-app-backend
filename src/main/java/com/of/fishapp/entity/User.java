@@ -14,6 +14,7 @@ import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.Column;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
 import jakarta.persistence.OneToMany;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -47,5 +48,9 @@ public class User {
     @JsonManagedReference
     @OneToMany(mappedBy = "user")
     private List<Location> locations;
+
+    @OneToMany
+    @JoinColumn(name = "user_id")
+    private List<WeatherObject> weatherObjects;
 
 }
