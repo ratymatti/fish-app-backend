@@ -31,10 +31,13 @@ public class WeatherObject {
     @GenericGenerator(name = "UUID", strategy = "org.hibernate.id.UUIDGenerator")
     private UUID id;
 
+    private UUID userId;
+
     private WeatherType type;
 
     private String name;
     private String info;
+
     private Geolocation coords;
 
     @ElementCollection
