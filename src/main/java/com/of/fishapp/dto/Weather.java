@@ -1,5 +1,6 @@
 package com.of.fishapp.dto;
 
+import jakarta.persistence.Embeddable;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -9,12 +10,13 @@ import lombok.Setter;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
+@Embeddable
 public class Weather {
 
     private double temp;
-    private double feels_like;
+    private double feelsLike;
     private double humidity;
     private double pressure;
-    private double wind_speed;
-    private double wind_direction;
+    private double windSpeed;
+    private double windDirection;
 }
