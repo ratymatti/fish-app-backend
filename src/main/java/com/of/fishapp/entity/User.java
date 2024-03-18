@@ -50,7 +50,7 @@ public class User {
     private List<Location> locations;
 
     @OneToMany
-    @JoinColumn(name = "user_id")
+    @JoinColumn(name = "userId")
     private List<WeatherObject> weatherObjects;
 
 }
