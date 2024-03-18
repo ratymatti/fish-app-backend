@@ -5,7 +5,6 @@ import java.util.UUID;
 
 import org.hibernate.annotations.GenericGenerator;
 
-import com.of.fishapp.constants.WeatherType;
 import com.of.fishapp.dto.Geolocation;
 import com.of.fishapp.dto.WeatherInfo;
 
@@ -33,8 +32,8 @@ public class WeatherObject {
 
     private UUID userId;
 
-    private WeatherType type;
-
+    
+    private String type;
     private String name;
     private String info;
 
