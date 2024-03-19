@@ -4,7 +4,10 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.of.fishapp.entity.Fish;
+import com.of.fishapp.entity.User;
+import com.of.fishapp.exception.EntityNotFoundException;
 import com.of.fishapp.service.FishService;
+import com.of.fishapp.service.UserService;
 
 import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
@@ -28,6 +31,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 public class FishController {
     
     FishService fishService;
+    UserService userService;
 
     @GetMapping("/{fishId}")
     public ResponseEntity<Optional<Fish>> findById(@PathVariable UUID fishId) {
@@ -39,8 +43,11 @@ public class FishController {
         } 
     }
 
-    @PostMapping("/save")
-    public ResponseEntity<Fish> saveFish(@Valid @RequestBody Fish fish) {
+    @PostMapping("/save/{userId}")
+    public ResponseEntity<Fish> saveFish(@Valid @RequestBody Fish fish, @PathVariable UUID userId) {
+        User user = userService.getUser(userId);
+        if (user  == null) throw new EntityNotFoundException(userId, User.class);
+        fish.setUser(user);
         Fish savedFish = fishService.saveFish(fish);
         return new ResponseEntity<>(savedFish, HttpStatus.CREATED);
     }
@@ -57,7 +64,7 @@ public class FishController {
         return new ResponseEntity<>(updatedFish, HttpStatus.OK);
     }
 
-    @GetMapping("/{userId}")
+    @GetMapping("/user/{userId}")
     public ResponseEntity<List<Fish>> getAllFishesByUserId(@PathVariable UUID userId) {
         List<Fish> fishes = fishService.getAllFishesByUserId(userId);
         return new ResponseEntity<>(fishes, HttpStatus.OK);
