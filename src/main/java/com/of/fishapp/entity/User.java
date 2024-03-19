@@ -53,4 +53,8 @@ public class User {
     @JoinColumn(name = "userId")
     private List<WeatherObject> weatherObjects;
 
+    @JsonManagedReference
+    @OneToMany(mappedBy = "user")
+    private List<Fish> fishes;
+
 }
