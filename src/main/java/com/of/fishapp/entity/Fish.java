@@ -6,6 +6,7 @@ import java.util.UUID;
 
 import org.hibernate.annotations.GenericGenerator;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.of.fishapp.dto.Geolocation;
 
 import jakarta.annotation.Nonnull;
@@ -14,6 +15,8 @@ import jakarta.persistence.Embedded;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
@@ -35,6 +38,11 @@ public class Fish {
     @GeneratedValue(generator = "UUID")
     @GenericGenerator(name = "UUID", strategy = "org.hibernate.id.UUIDGenerator")
     private UUID id;
+
+    @JsonBackReference
+    @ManyToOne
+    @JoinColumn(name = "userId", nullable = false)
+    private User user;
 
     @Embedded
     private Geolocation geolocation;
