@@ -1,7 +1,7 @@
 package com.of.fishapp.entity;
 
-import java.time.LocalDate;
-import java.time.LocalTime;
+//import java.time.LocalDate;
+//import java.time.LocalTime;
 import java.util.UUID;
 
 import org.hibernate.annotations.GenericGenerator;
@@ -20,7 +20,7 @@ import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
+//import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.RequiredArgsConstructor;
@@ -61,8 +61,10 @@ public class Fish {
 
     private String comment;
 
+    /* 
     @NotNull
     private LocalDate date;
 
     private LocalTime time;
+    */
 }
