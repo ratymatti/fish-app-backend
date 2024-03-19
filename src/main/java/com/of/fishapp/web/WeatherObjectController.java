@@ -46,9 +46,10 @@ public class WeatherObjectController {
     }
     
     @PostMapping("/{userId}/{lat}/{lng}")
-    public WeatherObject getAndSaveWeather(@PathVariable UUID userId, @PathVariable double lat, @PathVariable double lng) {
+    public ResponseEntity<WeatherObject> getAndSaveWeather(@PathVariable UUID userId, @PathVariable double lat, @PathVariable double lng) {
         Geolocation location = new Geolocation(lat, lng);
-        return weatherObjectService.fetchAndSaveWeatherData(userId, location);
+        WeatherObject weatherObject = weatherObjectService.fetchAndSaveWeatherData(userId, location);
+        return new ResponseEntity<>(weatherObject, HttpStatus.CREATED);
     }
 
 
