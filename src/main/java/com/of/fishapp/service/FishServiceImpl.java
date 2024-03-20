@@ -27,10 +27,9 @@ public class FishServiceImpl implements FishService {
     }
 
     @Override
-    public Optional<Fish> getFishById(UUID id) {
+    public Fish getFishById(UUID id) {
         if (id == null) throw new IllegalArgumentException("ID cannot be null");
-        Fish fish = unwrapFish(fishRepository.findById(id), Optional.of(id));
-        return Optional.of(fish); 
+        return unwrapFish(fishRepository.findById(id));
     }
 
     @Override
@@ -45,11 +44,11 @@ public class FishServiceImpl implements FishService {
         return fishRepository.save(fish);
     }
 
-    static Fish unwrapFish(Optional<Fish> entity, Optional<UUID> id) {
+    static Fish unwrapFish(Optional<Fish> entity) {
         if (entity.isPresent()) {
             return entity.get();
         } else {
-            throw new EntityNotFoundException(id, Fish.class);
+            throw new EntityNotFoundException(Fish.class);
         }
     }
 }
