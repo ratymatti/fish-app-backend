@@ -1,5 +1,9 @@
 package com.of.fishapp.web.unit;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.of.fishapp.ApplicationExceptionHandler;
+import com.of.fishapp.dto.Geolocation;
+import com.of.fishapp.entity.Fish;
 import com.of.fishapp.entity.Location;
 import com.of.fishapp.entity.User;
 import com.of.fishapp.exception.EntityNotFoundException;
@@ -11,6 +15,7 @@ import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
+import com.fasterxml.jackson.core.type.TypeReference;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.test.web.servlet.MockMvc;
@@ -21,8 +26,10 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -41,9 +48,12 @@ public class UserControllerTest {
     @BeforeEach
     void setUp() {
         MockitoAnnotations.openMocks(this);
-        mockMvc = MockMvcBuilders.standaloneSetup(controller).build();
+        this.mockMvc = MockMvcBuilders.standaloneSetup(controller)
+                .setControllerAdvice(new ApplicationExceptionHandler())
+                .build();
     }
 
+    @SuppressWarnings("null")
     @Test
     void findById_returnsUser() {
 
@@ -52,10 +62,10 @@ public class UserControllerTest {
         UUID userId = UUID.randomUUID();
         when(userService.getUser(userId)).thenReturn(user);
 
-        ResponseEntity<String> response = controller.findById(userId);
+        ResponseEntity<User> response = controller.findById(userId);
 
         assertEquals(HttpStatus.OK, response.getStatusCode());
-        assertEquals("test", response.getBody());
+        assertEquals(user.getUsername(), response.getBody().getUsername());
     }
 
     @Test
@@ -123,5 +133,78 @@ public class UserControllerTest {
 
         assertEquals(HttpStatus.OK, response.getStatusCode());
         assertTrue(response.getBody().isEmpty());
+    }
+
+    @Test
+    void getFishesByUserId_returnsFishes() throws Exception {
+        UUID userId = UUID.randomUUID();
+        User user = new User();
+        user.setId(userId);
+
+        Fish fish = createFish(user);
+
+        List<Fish> expectedFishes = List.of(fish);
+        user.setFishes(expectedFishes);
+
+        when(userService.getUser(userId)).thenReturn(user);
+
+        MvcResult mvcResult = mockMvc.perform(get("/user/" + userId.toString() + "/fishes"))
+                .andExpect(status().isOk())
+                .andReturn();
+
+        verify(userService).getUser(userId);        
+
+        String responseBody = mvcResult.getResponse().getContentAsString();
+        List<Fish> returnedFishes = new ObjectMapper().readValue(responseBody, new TypeReference<List<Fish>>() {});
+
+        assertEquals(expectedFishes.size(), returnedFishes.size());
+        assertEquals(HttpStatus.OK.value(), mvcResult.getResponse().getStatus());
+        assertEquals(expectedFishes.get(0).getId(), returnedFishes.get(0).getId());
+        assertEquals(expectedFishes.get(0).getSpecies(), returnedFishes.get(0).getSpecies());
+    }
+
+    @Test
+    void getFishesByUserId_returnsNotFound_whenUserNotFound() throws Exception {
+        UUID userId = UUID.randomUUID();
+        when(userService.getUser(userId)).thenThrow(new EntityNotFoundException(userId, User.class));
+
+        mockMvc.perform(get("/user/" + userId.toString() + "/fishes"))
+                .andExpect(status().isNotFound());
+
+        verify(userService).getUser(userId);
+    }
+    
+    @Test
+    void getFishesByUserId_returnsEmptyList_whenUserHasNoFishes() throws Exception {
+        UUID userId = UUID.randomUUID();
+        User user = new User();
+        user.setId(userId);
+        user.setFishes(new ArrayList<>());
+
+        when(userService.getUser(userId)).thenReturn(user);
+
+        MvcResult mvcResult = mockMvc.perform(get("/user/" + userId.toString() + "/fishes"))
+                .andExpect(status().isOk())
+                .andReturn();
+        
+        verify(userService).getUser(userId);
+
+        String responseBody = mvcResult.getResponse().getContentAsString();
+        List<Fish> returnedFishes = new ObjectMapper().readValue(responseBody, new TypeReference<List<Fish>>() {});
+
+        assertTrue(returnedFishes.isEmpty());
+    }
+    
+    private Fish createFish(User user) {
+        Fish fish = new Fish();
+        fish.setUser(user);
+        Geolocation geolocation = new Geolocation();
+        fish.setGeolocation(geolocation);
+        fish.setSpecies("Turska");
+        UUID fishId = UUID.randomUUID();
+        fish.setId(fishId);
+        fish.setLength(101);
+        fish.setLocationName("Test");
+        return fish;
     }
 }
