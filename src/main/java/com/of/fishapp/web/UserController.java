@@ -14,6 +14,8 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.of.fishapp.entity.Location;
 import com.of.fishapp.entity.User;
+import com.of.fishapp.exception.EntityNotFoundException;
+import com.of.fishapp.entity.Fish;
 import com.of.fishapp.service.UserService;
 
 import jakarta.validation.Valid;
@@ -26,14 +28,20 @@ public class UserController {
     
     UserService userService;
 
-    @GetMapping("/{id}")
-	public ResponseEntity<String> findById(@PathVariable UUID id) {
-		return new ResponseEntity<>(userService.getUser(id).getUsername(), HttpStatus.OK);
+    @GetMapping("/{userId}")
+	public ResponseEntity<User> findById(@PathVariable UUID userId) {
+        User user = userService.getUser(userId);
+        if (user == null) throw new EntityNotFoundException(userId, User.class);
+        
+		return new ResponseEntity<>(user, HttpStatus.OK);
 	}
 
     @GetMapping("/{userId}/locations")
     public ResponseEntity<List<Location>> getLocationsByUserId(@PathVariable UUID userId) {
-        return new ResponseEntity<>(userService.getUser(userId).getLocations(), HttpStatus.OK);
+        User user = userService.getUser(userId);
+        if (user == null) throw new EntityNotFoundException(userId, User.class);
+
+        return new ResponseEntity<>(user.getLocations(), HttpStatus.OK);
     }
 
     @PostMapping("/register")
@@ -41,4 +49,12 @@ public class UserController {
         userService.saveUser(user);
 		return new ResponseEntity<>(user, HttpStatus.CREATED); // REMOVE USER FROM THERE
 	}
+
+    @GetMapping("/{userId}/fishes")
+    public ResponseEntity<List<Fish>> getFishesByUserId(@PathVariable UUID userId) {
+        User user = userService.getUser(userId);
+        if (user == null) throw new EntityNotFoundException(userId, User.class);
+        
+        return new ResponseEntity<>(user.getFishes(), HttpStatus.OK);
+    }
 }
