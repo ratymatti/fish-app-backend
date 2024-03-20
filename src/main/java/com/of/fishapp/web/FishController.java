@@ -12,7 +12,6 @@ import com.of.fishapp.service.UserService;
 import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
 
-import java.util.Optional;
 import java.util.UUID;
 
 import org.springframework.http.HttpStatus;
@@ -33,9 +32,10 @@ public class FishController {
     UserService userService;
 
     @GetMapping("/{fishId}")
-    public ResponseEntity<Optional<Fish>> findById(@PathVariable UUID fishId) {
-        Optional<Fish> fish = fishService.getFishById(fishId);
-        if (fish.isPresent()) {
+    public ResponseEntity<Fish> findById(@PathVariable UUID fishId) {
+        if (fishId == null) throw new IllegalArgumentException("ID cannot be null");
+        Fish fish = fishService.getFishById(fishId);
+        if (fish != null) {
             return new ResponseEntity<>(fish, HttpStatus.OK);
         } else {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
