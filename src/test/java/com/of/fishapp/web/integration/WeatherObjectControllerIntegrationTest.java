@@ -1,6 +1,7 @@
 package com.of.fishapp.web.integration;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 
@@ -11,6 +12,7 @@ import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
+import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.HttpStatus;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
@@ -24,6 +26,7 @@ import com.of.fishapp.exception.EntityNotFoundException;
 import com.of.fishapp.service.WeatherObjectService;
 import com.of.fishapp.web.WeatherObjectController;
 
+@SpringBootTest
 public class WeatherObjectControllerIntegrationTest {
 
     @Mock
@@ -57,12 +60,16 @@ public class WeatherObjectControllerIntegrationTest {
     void findById_returnsWeatherObject() throws Exception {
         WeatherObject weatherObject = new WeatherObject();
         UUID weatherObjectId = UUID.randomUUID();
+        weatherObject.setId(weatherObjectId);
         weatherObject.setName("test");
+
         when(weatherObjectService.getWeatherObject(weatherObjectId)).thenReturn(weatherObject);
 
         MvcResult mvcResult = mockMvc.perform(get("/weather/" + weatherObjectId))
             .andExpect(status().isOk())
             .andReturn();
+
+        verify(weatherObjectService).getWeatherObject(weatherObjectId);    
 
         String responseBody = mvcResult.getResponse().getContentAsString();
         WeatherObject returnedWeatherObject = new ObjectMapper().readValue(responseBody, WeatherObject.class);
