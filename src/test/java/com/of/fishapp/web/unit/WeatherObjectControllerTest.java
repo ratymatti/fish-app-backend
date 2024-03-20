@@ -16,6 +16,7 @@ import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
+import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.test.web.servlet.MockMvc;
@@ -30,6 +31,7 @@ import com.of.fishapp.exception.EntityNotFoundException;
 import com.of.fishapp.service.WeatherObjectService;
 import com.of.fishapp.web.WeatherObjectController;
 
+@SpringBootTest
 public class WeatherObjectControllerTest {
 
     @Mock
