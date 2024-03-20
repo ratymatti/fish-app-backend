@@ -1,6 +1,5 @@
 package com.of.fishapp.service;
 
-import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -44,12 +43,6 @@ public class FishServiceImpl implements FishService {
     public Fish updateFish(Fish fish) {
         if (fish == null) throw new IllegalArgumentException("Fish cannot be null");
         return fishRepository.save(fish);
-    }
-
-    @Override
-    public List<Fish> getAllFishesByUserId(UUID userId) {
-        if (userId == null) throw new IllegalArgumentException("ID cannot be null");
-        return fishRepository.findByUser_Id(userId);
     }
 
     static Fish unwrapFish(Optional<Fish> entity, Optional<UUID> id) {
