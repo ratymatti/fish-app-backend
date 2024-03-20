@@ -12,7 +12,6 @@ import com.of.fishapp.service.UserService;
 import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
 
-import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -62,12 +61,6 @@ public class FishController {
     public ResponseEntity<Fish> updateFish(@PathVariable UUID fishId, @Valid @RequestBody Fish fish) {
         Fish updatedFish = fishService.updateFish(fish);
         return new ResponseEntity<>(updatedFish, HttpStatus.OK);
-    }
-
-    @GetMapping("/user/{userId}")
-    public ResponseEntity<List<Fish>> getAllFishesByUserId(@PathVariable UUID userId) {
-        List<Fish> fishes = fishService.getAllFishesByUserId(userId);
-        return new ResponseEntity<>(fishes, HttpStatus.OK);
     }
     
 }
