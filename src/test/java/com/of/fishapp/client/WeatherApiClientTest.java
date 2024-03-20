@@ -5,6 +5,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.client.RestTemplate;
@@ -23,6 +24,7 @@ import static org.mockito.Mockito.when;
 
 import java.util.UUID;
 
+@SpringBootTest
 @ExtendWith(MockitoExtension.class)
 public class WeatherApiClientTest {
 
@@ -38,48 +40,38 @@ public class WeatherApiClientTest {
     @SuppressWarnings("null")
     @Test
     public void testFetchWeatherData() {
-        // Arrange
         Geolocation location = new Geolocation(65.96667, 29.18333);
         String type = "weather";
         UUID userId = UUID.randomUUID();
         String userIdString = userId.toString();
-        String responseJson = "{\n" + //
-                        "    \"id\": \"a275e159-ecf5-48cf-917e-c89c951c27d1\",\n" + //
-                        "    \"userId\": \""+ userIdString +"\",\n" + //
-                        "    \"type\": \"weather\",\n" + //
-                        "    \"name\": \"Kuusamo\",\n" + //
-                        "    \"info\": \"clear sky\",\n" + //
-                        "    \"coords\": {\n" + //
-                        "        \"lat\": 65.96667,\n" + //
-                        "        \"lng\": 29.18333\n" + //
-                        "    },\n" + //
-                        "    \"forecastArray\": null,\n" + //
-                        "    \"currentWeather\": {\n" + //
-                        "        \"icon\": \"01d\",\n" + //
-                        "        \"time\": \"17:05 18/03/2024\",\n" + //
-                        "        \"weather\": {\n" + //
-                        "            \"temp\": -1.98,\n" + //
-                        "            \"feelsLike\": -8.05,\n" + //
-                        "            \"humidity\": 26.0,\n" + //
-                        "            \"pressure\": 1018.0,\n" + //
-                        "            \"windSpeed\": 6.17,\n" + //
-                        "            \"windDirection\": 230.0\n" + //
-                        "        }\n" + //
-                        "    }\n" + //
-                        "}"; 
+        String responseJson = getJsonResponse(userIdString);
+
         ResponseEntity<Object> responseEntity = new ResponseEntity<>(responseJson, HttpStatus.OK);
         
-        WeatherObject expectedWeatherObject = new WeatherObject();
-        expectedWeatherObject.setId(UUID.fromString("a275e159-ecf5-48cf-917e-c89c951c27d1"));
-        expectedWeatherObject.setUserId(UUID.fromString(userIdString));
-        expectedWeatherObject.setType("weather");
-        expectedWeatherObject.setName("Kuusamo");
-        expectedWeatherObject.setInfo("clear sky");
+        WeatherObject expectedWeatherObject = createWeatherObject();
+
+        lenient().when(restTemplate.getForEntity(anyString(), any())).thenReturn(responseEntity);
+        when(weatherDataMapper.createWeatherObject(any(), any(), any(), any())).thenReturn(expectedWeatherObject);
+
+        WeatherObject actualWeatherObject = weatherApiClient.fetchWeatherData(location, type, userId);
+
+        assertEquals(expectedWeatherObject, actualWeatherObject);
+        assertEquals(HttpStatus.OK, responseEntity.getStatusCode());
+    }
+
+    private WeatherObject createWeatherObject() {
+
+        WeatherObject weatherObject = new WeatherObject();
+        weatherObject.setId(UUID.randomUUID());
+        weatherObject.setUserId(UUID.randomUUID());
+        weatherObject.setType("weather");
+        weatherObject.setName("Kuusamo");
+        weatherObject.setInfo("clear sky");
 
         Geolocation coords = new Geolocation();
         coords.setLat(65.96667);
         coords.setLng(29.18333);
-        expectedWeatherObject.setCoords(coords);
+        weatherObject.setCoords(coords);
 
         WeatherInfo currentWeather = new WeatherInfo();
         currentWeather.setIcon("01d");
@@ -94,15 +86,35 @@ public class WeatherApiClientTest {
         weather.setWindDirection(230.0);
         currentWeather.setWeather(weather);
 
-        expectedWeatherObject.setCurrentWeather(currentWeather);
+        weatherObject.setCurrentWeather(currentWeather);
 
-        lenient().when(restTemplate.getForEntity(anyString(), any())).thenReturn(responseEntity);
-        when(weatherDataMapper.createWeatherObject(any(), any(), any(), any())).thenReturn(expectedWeatherObject);
+        return weatherObject;
+    }
 
-        // Act
-        WeatherObject actualWeatherObject = weatherApiClient.fetchWeatherData(location, type, userId);
-
-        // Assert
-        assertEquals(expectedWeatherObject, actualWeatherObject);
+    private String getJsonResponse(String userIdString) {
+        return "{\n" + //
+        "    \"id\": \"a275e159-ecf5-48cf-917e-c89c951c27d1\",\n" + //
+        "    \"userId\": \""+ userIdString +"\",\n" + //
+        "    \"type\": \"weather\",\n" + //
+        "    \"name\": \"Kuusamo\",\n" + //
+        "    \"info\": \"clear sky\",\n" + //
+        "    \"coords\": {\n" + //
+        "        \"lat\": 65.96667,\n" + //
+        "        \"lng\": 29.18333\n" + //
+        "    },\n" + //
+        "    \"forecastArray\": null,\n" + //
+        "    \"currentWeather\": {\n" + //
+        "        \"icon\": \"01d\",\n" + //
+        "        \"time\": \"17:05 18/03/2024\",\n" + //
+        "        \"weather\": {\n" + //
+        "            \"temp\": -1.98,\n" + //
+        "            \"feelsLike\": -8.05,\n" + //
+        "            \"humidity\": 26.0,\n" + //
+        "            \"pressure\": 1018.0,\n" + //
+        "            \"windSpeed\": 6.17,\n" + //
+        "            \"windDirection\": 230.0\n" + //
+        "        }\n" + //
+        "    }\n" + //
+        "}";
     }
 }
