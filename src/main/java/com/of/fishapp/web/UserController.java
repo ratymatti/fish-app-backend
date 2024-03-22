@@ -16,8 +16,10 @@ import org.springframework.web.bind.annotation.RestController;
 import com.of.fishapp.entity.Location;
 import com.of.fishapp.entity.User;
 import com.of.fishapp.exception.EntityNotFoundException;
+import com.google.firebase.auth.FirebaseAuthException;
 import com.of.fishapp.entity.Fish;
 import com.of.fishapp.service.UserService;
+import com.of.fishapp.service.FirebaseAuthenticator;
 
 import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
@@ -27,41 +29,55 @@ import lombok.AllArgsConstructor;
 @RestController
 @RequestMapping("/user")
 public class UserController {
-    
+
     UserService userService;
+    FirebaseAuthenticator authenticator;
 
     @GetMapping("/{userId}")
-	public ResponseEntity<User> findById(@PathVariable UUID userId) {
+    public ResponseEntity<User> findById(@PathVariable UUID userId) {
         User user = userService.getUser(userId);
-        if (user == null) throw new EntityNotFoundException(userId, User.class);
-        
-		return new ResponseEntity<>(user, HttpStatus.OK);
-	}
+        if (user == null)
+            throw new EntityNotFoundException(userId, User.class);
+
+        return new ResponseEntity<>(user, HttpStatus.OK);
+    }
 
     @GetMapping("/{userId}/locations")
     public ResponseEntity<List<Location>> getLocationsByUserId(@PathVariable UUID userId) {
         User user = userService.getUser(userId);
-        if (user == null) throw new EntityNotFoundException(userId, User.class);
+        if (user == null)
+            throw new EntityNotFoundException(userId, User.class);
 
         return new ResponseEntity<>(user.getLocations(), HttpStatus.OK);
     }
 
     @PostMapping("/authenticate")
-    public ResponseEntity<User> createUser(@Valid @RequestBody User user) {
-        User existingUser = userService.getUserByGoogleId(user.getGoogleId());
-        if (existingUser != null) {
-            return new ResponseEntity<>(existingUser, HttpStatus.OK);
+    public ResponseEntity<HttpStatus> authenticateUser(@Valid @RequestBody User user) {
+        boolean isValidToken = authenticator.verifyIdToken(user.getIdToken());
+
+        if (!isValidToken) return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
+
+        String googleId;
+        try {
+            googleId = authenticator.getUidFromToken(user.getIdToken());
+            user.setGoogleId(googleId);
+        } catch (FirebaseAuthException e) {
+            return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
         }
+
+        User existingUser = userService.getUserByGoogleId(user.getGoogleId());
+        if (existingUser != null) return new ResponseEntity<>(HttpStatus.OK);
         
         userService.saveUser(user);
-        return new ResponseEntity<>(user, HttpStatus.CREATED);
+        return new ResponseEntity<>(HttpStatus.CREATED);
     }
 
     @GetMapping("/{userId}/fishes")
     public ResponseEntity<List<Fish>> getFishesByUserId(@PathVariable UUID userId) {
         User user = userService.getUser(userId);
-        if (user == null) throw new EntityNotFoundException(userId, User.class);
-        
+        if (user == null)
+            throw new EntityNotFoundException(userId, User.class);
+
         return new ResponseEntity<>(user.getFishes(), HttpStatus.OK);
     }
 }
