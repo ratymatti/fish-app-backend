@@ -54,20 +54,27 @@ public class UserController {
     @PostMapping("/authenticate")
     public ResponseEntity<HttpStatus> authenticateUser(@Valid @RequestBody User user) {
         boolean isValidToken = authenticator.verifyIdToken(user.getIdToken());
+        
+        if (!isValidToken)
+            return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
 
-        if (!isValidToken) return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
+        try {
+            User existingUser = userService.getUserByGoogleId(authenticator.getUidFromToken(user.getIdToken()));
+            if (existingUser != null)
+                return new ResponseEntity<>(HttpStatus.OK);
+        } catch (FirebaseAuthException e) {
+            return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
+        }
 
         String googleId;
         try {
             googleId = authenticator.getUidFromToken(user.getIdToken());
             user.setGoogleId(googleId);
+            user.setIdToken("");
         } catch (FirebaseAuthException e) {
             return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
         }
 
-        User existingUser = userService.getUserByGoogleId(user.getGoogleId());
-        if (existingUser != null) return new ResponseEntity<>(HttpStatus.OK);
-        
         userService.saveUser(user);
         return new ResponseEntity<>(HttpStatus.CREATED);
     }
