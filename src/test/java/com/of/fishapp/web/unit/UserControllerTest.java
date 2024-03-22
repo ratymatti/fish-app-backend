@@ -1,20 +1,26 @@
 package com.of.fishapp.web.unit;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.firebase.auth.FirebaseAuthException;
 import com.of.fishapp.ApplicationExceptionHandler;
 import com.of.fishapp.dto.Geolocation;
 import com.of.fishapp.entity.Fish;
 import com.of.fishapp.entity.Location;
 import com.of.fishapp.entity.User;
 import com.of.fishapp.exception.EntityNotFoundException;
+import com.of.fishapp.service.FirebaseAuthenticator;
 import com.of.fishapp.service.UserService;
 import com.of.fishapp.web.UserController;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
+import org.mockito.junit.jupiter.MockitoExtension;
+
 import com.fasterxml.jackson.core.type.TypeReference;
 
 import org.springframework.boot.test.context.SpringBootTest;
@@ -28,6 +34,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
@@ -37,11 +44,15 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
+@ExtendWith(MockitoExtension.class)
 @SpringBootTest
 public class UserControllerTest {
 
     @Mock
     private UserService userService;
+
+    @Mock
+    private FirebaseAuthenticator mockAuthenticator;
 
     @InjectMocks
     private UserController controller;
@@ -56,7 +67,34 @@ public class UserControllerTest {
                 .build();
     }
 
-    @SuppressWarnings("null")
+    @Test
+    void authenticateUser_returnsOk_whenValidToken() throws FirebaseAuthException {
+        User user = new User();
+        user.setIdToken("validToken");
+
+        when(mockAuthenticator.verifyIdToken(anyString())).thenReturn(true);
+        when(mockAuthenticator.getUidFromToken(anyString())).thenReturn("googleId"); // Stub getUidFromToken to return a non-null string
+        when(userService.getUserByGoogleId(anyString())).thenReturn(user);
+
+        ResponseEntity<HttpStatus> response = controller.authenticateUser(user);
+
+        verify(mockAuthenticator).verifyIdToken(anyString());
+        verify(mockAuthenticator).getUidFromToken(anyString());
+        verify(userService).getUserByGoogleId(anyString());
+
+        assertEquals(HttpStatus.OK, response.getStatusCode());
+    }
+
+    @Test
+    void authenticateUser_returnsUnauthorized_whenInvalidToken() {
+        User user = new User();
+        user.setIdToken("invalidToken");
+
+        ResponseEntity<HttpStatus> response = controller.authenticateUser(user);
+
+        assertEquals(HttpStatus.UNAUTHORIZED, response.getStatusCode());
+    }
+
     @Test
     void findById_returnsUser() {
 
@@ -72,23 +110,14 @@ public class UserControllerTest {
     }
 
     @Test
-    void createUser_returnsCreated() {
-
-        User user = new User();
-        when(userService.saveUser(user)).thenReturn(user);
-
-        ResponseEntity<User> response = controller.createUser(user);
-
-        assertEquals(HttpStatus.CREATED, response.getStatusCode());
-    }
-
-    @Test
     void findById_returnsNotFound_whenUserNotFound() throws Exception {
         UUID userId = UUID.randomUUID();
         when(userService.getUser(any(UUID.class))).thenThrow(new EntityNotFoundException(userId, User.class));
 
-        MvcResult mvcResult = mockMvc.perform(get("/" + userId.toString()))
+        MvcResult mvcResult = mockMvc.perform(get("/user/" + userId.toString()))
                 .andReturn();
+                
+        verify(userService).getUser(userId);        
 
         assertEquals(HttpStatus.NOT_FOUND.value(), mvcResult.getResponse().getStatus());
     }
@@ -121,7 +150,6 @@ public class UserControllerTest {
         });
     }
 
-    @SuppressWarnings("null")
     @Test
     void getLocationsByUserId_returnsEmptyList_whenUserHasNoLocations() {
         UUID userId = UUID.randomUUID();
