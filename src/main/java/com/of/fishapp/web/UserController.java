@@ -46,11 +46,16 @@ public class UserController {
         return new ResponseEntity<>(user.getLocations(), HttpStatus.OK);
     }
 
-    @PostMapping("/register")
-	public ResponseEntity<User> createUser(@Valid @RequestBody User user) {
+    @PostMapping("/authenticate")
+    public ResponseEntity<User> createUser(@Valid @RequestBody User user) {
+        User existingUser = userService.getUserByGoogleId(user.getGoogleId());
+        if (existingUser != null) {
+            return new ResponseEntity<>(existingUser, HttpStatus.OK);
+        }
+        
         userService.saveUser(user);
-		return new ResponseEntity<>(user, HttpStatus.CREATED); // REMOVE USER FROM THERE
-	}
+        return new ResponseEntity<>(user, HttpStatus.CREATED);
+    }
 
     @GetMapping("/{userId}/fishes")
     public ResponseEntity<List<Fish>> getFishesByUserId(@PathVariable UUID userId) {
