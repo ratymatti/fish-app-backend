@@ -5,7 +5,7 @@ import java.util.UUID;
 import com.of.fishapp.entity.User;
 
 public interface UserService {
-    User getUser(String username);
     User saveUser(User user);
     User getUser(UUID id);
+    User getUserByGoogleId(String googleId);
 } 
