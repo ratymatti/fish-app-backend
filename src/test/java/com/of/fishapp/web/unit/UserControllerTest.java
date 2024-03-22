@@ -61,14 +61,14 @@ public class UserControllerTest {
     void findById_returnsUser() {
 
         User user = new User();
-        user.setUsername("test");
+        user.setName("Test User");
         UUID userId = UUID.randomUUID();
         when(userService.getUser(userId)).thenReturn(user);
 
         ResponseEntity<User> response = controller.findById(userId);
 
         assertEquals(HttpStatus.OK, response.getStatusCode());
-        assertEquals(user.getUsername(), response.getBody().getUsername());
+        assertEquals(user.getName(), response.getBody().getName());
     }
 
     @Test
@@ -98,7 +98,7 @@ public class UserControllerTest {
         UUID userId = UUID.randomUUID();
         User user = new User();
         user.setId(userId);
-        user.setUsername("test");
+        user.setName("Test User");
 
         List<Location> locations = List.of(new Location());
         user.setLocations(locations);
@@ -127,7 +127,6 @@ public class UserControllerTest {
         UUID userId = UUID.randomUUID();
         User user = new User();
         user.setId(userId);
-        user.setUsername("test");
         user.setLocations(new ArrayList<>());
 
         when(userService.getUser(userId)).thenReturn(user);
