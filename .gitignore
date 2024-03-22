@@ -38,3 +38,7 @@ build/
 
 ### dotenv ###
 .env
+
+### SetTestData ###
+
+SetTestData.java
