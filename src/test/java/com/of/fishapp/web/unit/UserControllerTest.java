@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.firebase.auth.FirebaseAuthException;
 import com.of.fishapp.ApplicationExceptionHandler;
 import com.of.fishapp.dto.Geolocation;
+import com.of.fishapp.dto.IdToken;
 import com.of.fishapp.entity.Fish;
 import com.of.fishapp.entity.Location;
 import com.of.fishapp.entity.User;
@@ -34,6 +35,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
@@ -68,17 +70,20 @@ public class UserControllerTest {
 
     @Test
     void authenticateUser_returnsOk_whenValidToken() throws FirebaseAuthException {
+        IdToken idToken = new IdToken("validToken");
         User user = new User();
-        user.setIdToken("validToken");
 
-        when(mockAuthenticator.verifyIdToken(anyString())).thenReturn(true);
-        when(mockAuthenticator.getUidFromToken(anyString())).thenReturn("googleId"); // Stub getUidFromToken to return a non-null string
+        lenient().when(mockAuthenticator.verifyIdToken(any(IdToken.class))).thenReturn(true);
+        lenient().when(mockAuthenticator.getUidFromToken(any(IdToken.class))).thenReturn("googleId"); // Stub getUidFromToken to return a non-null string
+
+        when(mockAuthenticator.verifyIdToken(any(IdToken.class))).thenReturn(true);
+        when(mockAuthenticator.getUidFromToken(any(IdToken.class))).thenReturn("googleId"); // Stub getUidFromToken to return a non-null string
         when(userService.getUserByGoogleId(anyString())).thenReturn(user);
 
-        ResponseEntity<HttpStatus> response = controller.authenticateUser(user);
+        ResponseEntity<HttpStatus> response = controller.authenticateUser(idToken);
 
-        verify(mockAuthenticator).verifyIdToken(anyString());
-        verify(mockAuthenticator).getUidFromToken(anyString());
+        verify(mockAuthenticator).verifyIdToken(any(IdToken.class));
+        verify(mockAuthenticator).getUidFromToken(any(IdToken.class));
         verify(userService).getUserByGoogleId(anyString());
 
         assertEquals(HttpStatus.OK, response.getStatusCode());
@@ -86,10 +91,13 @@ public class UserControllerTest {
 
     @Test
     void authenticateUser_returnsUnauthorized_whenInvalidToken() {
-        User user = new User();
-        user.setIdToken("invalidToken");
+        IdToken idToken = new IdToken("invalidToken");
 
-        ResponseEntity<HttpStatus> response = controller.authenticateUser(user);
+        when(mockAuthenticator.verifyIdToken(any(IdToken.class))).thenReturn(false);
+
+        ResponseEntity<HttpStatus> response = controller.authenticateUser(idToken);
+
+        verify(mockAuthenticator).verifyIdToken(any(IdToken.class));
 
         assertEquals(HttpStatus.UNAUTHORIZED, response.getStatusCode());
     }
