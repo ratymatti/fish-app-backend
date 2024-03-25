@@ -17,8 +17,11 @@ import com.of.fishapp.entity.Location;
 import com.of.fishapp.entity.User;
 import com.of.fishapp.exception.EntityNotFoundException;
 import com.google.firebase.auth.FirebaseAuthException;
+import com.of.fishapp.dto.IdToken;
+import com.of.fishapp.dto.UserDetails;
 import com.of.fishapp.entity.Fish;
 import com.of.fishapp.service.UserService;
+
 import com.of.fishapp.service.FirebaseAuthenticator;
 
 import jakarta.validation.Valid;
@@ -52,31 +55,23 @@ public class UserController {
     }
 
     @PostMapping("/authenticate")
-    public ResponseEntity<HttpStatus> authenticateUser(@Valid @RequestBody User user) {
-        boolean isValidToken = authenticator.verifyIdToken(user.getIdToken());
-        
-        if (!isValidToken)
-            return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
-
+    public ResponseEntity<HttpStatus> authenticateUser(@Valid @RequestBody IdToken idToken) {
         try {
-            User existingUser = userService.getUserByGoogleId(authenticator.getUidFromToken(user.getIdToken()));
-            if (existingUser != null)
+            if (!authenticator.verifyIdToken(idToken)) {
+                return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
+            }
+
+            User existingUser = userService.getUserByGoogleId(authenticator.getUidFromToken(idToken));
+            if (existingUser != null) {
                 return new ResponseEntity<>(HttpStatus.OK);
+            }
+
+            createUser(idToken);
+            return new ResponseEntity<>(HttpStatus.CREATED);
+
         } catch (FirebaseAuthException e) {
             return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
         }
-
-        String googleId;
-        try {
-            googleId = authenticator.getUidFromToken(user.getIdToken());
-            user.setGoogleId(googleId);
-            user.setIdToken("");
-        } catch (FirebaseAuthException e) {
-            return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
-        }
-
-        userService.saveUser(user);
-        return new ResponseEntity<>(HttpStatus.CREATED);
     }
 
     @GetMapping("/{userId}/fishes")
@@ -86,5 +81,14 @@ public class UserController {
             throw new EntityNotFoundException(userId, User.class);
 
         return new ResponseEntity<>(user.getFishes(), HttpStatus.OK);
+    }
+
+    private void createUser(IdToken idToken) throws FirebaseAuthException {
+        UserDetails userDetails = authenticator.getUserDetails(idToken);
+        User newUser = new User();
+        newUser.setGoogleId(userDetails.getGoogleId());
+        newUser.setName(userDetails.getName());
+        newUser.setEmail(userDetails.getEmail());
+        userService.saveUser(newUser);
     }
 }
