@@ -54,26 +54,6 @@ public class UserController {
         return new ResponseEntity<>(user.getLocations(), HttpStatus.OK);
     }
 
-    @PostMapping("/authenticate")
-    public ResponseEntity<HttpStatus> authenticateUser(@Valid @RequestBody IdToken idToken) {
-        try {
-            if (!authenticator.verifyIdToken(idToken)) {
-                return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
-            }
-
-            User existingUser = userService.getUserByGoogleId(authenticator.getUidFromToken(idToken));
-            if (existingUser != null) {
-                return new ResponseEntity<>(HttpStatus.OK);
-            }
-
-            createUser(idToken);
-            return new ResponseEntity<>(HttpStatus.CREATED);
-
-        } catch (FirebaseAuthException e) {
-            return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
-        }
-    }
-
     @GetMapping("/{userId}/fishes")
     public ResponseEntity<List<Fish>> getFishesByUserId(@PathVariable UUID userId) {
         User user = userService.getUser(userId);
@@ -83,12 +63,38 @@ public class UserController {
         return new ResponseEntity<>(user.getFishes(), HttpStatus.OK);
     }
 
-    private void createUser(IdToken idToken) throws FirebaseAuthException {
+    @PostMapping("/authenticate")
+    public ResponseEntity<String> authenticateUser(@Valid @RequestBody IdToken idToken) {
+        try {
+            if (!authenticator.verifyIdToken(idToken)) {
+                return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
+            }
+
+            User existingUser = userService.getUserByGoogleId(authenticator.getUidFromToken(idToken));
+            if (existingUser != null) {
+                String userId = existingUser.getId().toString();
+                return new ResponseEntity<>(userId, HttpStatus.OK);
+            }
+
+            User newUser = createUser(idToken);
+            userService.saveUser(newUser);
+            newUser = userService.getUserByGoogleId(newUser.getGoogleId());
+
+            String userId = newUser.getId().toString();
+            return new ResponseEntity<>(userId, HttpStatus.CREATED);
+
+        } catch (FirebaseAuthException e) {
+            return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
+        }
+    }
+
+
+    private User createUser(IdToken idToken) throws FirebaseAuthException {
         UserDetails userDetails = authenticator.getUserDetails(idToken);
-        User newUser = new User();
-        newUser.setGoogleId(userDetails.getGoogleId());
-        newUser.setName(userDetails.getName());
-        newUser.setEmail(userDetails.getEmail());
-        userService.saveUser(newUser);
+        User user = new User();
+        user.setGoogleId(userDetails.getGoogleId());
+        user.setName(userDetails.getName());
+        user.setEmail(userDetails.getEmail());
+        return user;
     }
 }
