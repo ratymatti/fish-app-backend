@@ -4,7 +4,8 @@ import org.springframework.stereotype.Service;
 
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseToken;
-
+import com.of.fishapp.dto.IdToken;
+import com.of.fishapp.dto.UserDetails;
 import com.google.firebase.auth.FirebaseAuthException;
 
 @Service
@@ -16,18 +17,26 @@ public class FirebaseAuthenticator {
         this.firebaseAuth = FirebaseAuth.getInstance();
     }
 
-    public boolean verifyIdToken(String idToken) {
+    public boolean verifyIdToken(IdToken idToken) {
+        String idTokenString = idToken.getIdToken();
         try {
-            firebaseAuth.verifyIdToken(idToken);
+            firebaseAuth.verifyIdToken(idTokenString);
             return true;
         } catch (FirebaseAuthException e) {
             return false;
         }
     }
 
-    public String getUidFromToken(String idToken) throws FirebaseAuthException {
-        FirebaseToken token = firebaseAuth.verifyIdToken(idToken);
+    public String getUidFromToken(IdToken idToken) throws FirebaseAuthException {
+        String idTokenString = idToken.getIdToken();
+        FirebaseToken token = firebaseAuth.verifyIdToken(idTokenString);
         return token.getUid();
+    }
+
+    public UserDetails getUserDetails(IdToken idToken) throws FirebaseAuthException {
+        String idTokenString = idToken.getIdToken();
+        FirebaseToken token = firebaseAuth.verifyIdToken(idTokenString);
+        return new UserDetails(token.getUid(), token.getName(), token.getEmail());
     }
 
 }
