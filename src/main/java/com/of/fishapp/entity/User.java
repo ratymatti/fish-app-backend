@@ -11,6 +11,7 @@ import org.hibernate.annotations.GenericGenerator;
 
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.Id;
@@ -47,15 +48,16 @@ public class User {
     private String name;
 
     @JsonManagedReference
-    @OneToMany(mappedBy = "user")
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
     private List<Location> locations;
 
-    @OneToMany
+    @JsonManagedReference
+    @OneToMany(cascade = CascadeType.ALL)
     @JoinColumn(name = "userId")
     private List<WeatherObject> weatherObjects;
 
     @JsonManagedReference
-    @OneToMany(mappedBy = "user")
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
     private List<Fish> fishes;
 
 }
