@@ -72,6 +72,8 @@ public class UserControllerTest {
     void authenticateUser_returnsOk_whenValidToken() throws FirebaseAuthException {
         IdToken idToken = new IdToken("validToken");
         User user = new User();
+        UUID userId = UUID.randomUUID();
+        user.setId(userId);
 
         lenient().when(mockAuthenticator.verifyIdToken(any(IdToken.class))).thenReturn(true);
         lenient().when(mockAuthenticator.getUidFromToken(any(IdToken.class))).thenReturn("googleId"); // Stub getUidFromToken to return a non-null string
@@ -80,7 +82,7 @@ public class UserControllerTest {
         when(mockAuthenticator.getUidFromToken(any(IdToken.class))).thenReturn("googleId"); // Stub getUidFromToken to return a non-null string
         when(userService.getUserByGoogleId(anyString())).thenReturn(user);
 
-        ResponseEntity<HttpStatus> response = controller.authenticateUser(idToken);
+        ResponseEntity<String> response = controller.authenticateUser(idToken);
 
         verify(mockAuthenticator).verifyIdToken(any(IdToken.class));
         verify(mockAuthenticator).getUidFromToken(any(IdToken.class));
@@ -95,7 +97,7 @@ public class UserControllerTest {
 
         when(mockAuthenticator.verifyIdToken(any(IdToken.class))).thenReturn(false);
 
-        ResponseEntity<HttpStatus> response = controller.authenticateUser(idToken);
+        ResponseEntity<String> response = controller.authenticateUser(idToken);
 
         verify(mockAuthenticator).verifyIdToken(any(IdToken.class));
 
