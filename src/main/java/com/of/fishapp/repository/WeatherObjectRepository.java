@@ -6,10 +6,11 @@ import java.util.UUID;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
+import com.of.fishapp.entity.User;
 import com.of.fishapp.entity.WeatherObject;
 
 @Repository
 public interface WeatherObjectRepository extends JpaRepository<WeatherObject, UUID>{
     WeatherObject findWeatherById(UUID id);
-    List<WeatherObject> findByUserId(UUID userId);
+    List<WeatherObject> findByUser(User users);
 }

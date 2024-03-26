@@ -4,17 +4,17 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Map;
-import java.util.UUID;
 
 import com.of.fishapp.dto.Geolocation;
 import com.of.fishapp.dto.Weather;
 import com.of.fishapp.dto.WeatherInfo;
+import com.of.fishapp.entity.User;
 import com.of.fishapp.entity.WeatherObject;
 
 public class WeatherDataMapper {
     
     @SuppressWarnings("unchecked")
-    public  WeatherObject createWeatherObject(Map<String, Object> data, Geolocation location, String type, UUID userId) {
+    public  WeatherObject createWeatherObject(Map<String, Object> data, Geolocation location, String type, User user) {
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("HH:mm dd/MM/yyyy");
         String currentTime = LocalDateTime.now().format(formatter);
         
@@ -22,7 +22,7 @@ public class WeatherDataMapper {
         WeatherObject weatherObject = new WeatherObject();
 
         // Set the fields of the weatherObject here
-        weatherObject.setUserId(userId); // Replace with actual user ID
+        weatherObject.setUser(user); // Replace with actual user ID
         weatherObject.setType(type);
         weatherObject.setName((String) data.get("name"));
         weatherObject.setInfo((String) ((Map<String, Object>) ((List<?>) data.get("weather")).get(0)).get("description"));

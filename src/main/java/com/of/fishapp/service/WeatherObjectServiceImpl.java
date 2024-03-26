@@ -8,6 +8,7 @@ import org.springframework.stereotype.Service;
 
 import com.of.fishapp.client.WeatherApiClient;
 import com.of.fishapp.dto.Geolocation;
+import com.of.fishapp.entity.User;
 import com.of.fishapp.entity.WeatherObject;
 import com.of.fishapp.repository.WeatherObjectRepository;
 
@@ -29,9 +30,9 @@ public class WeatherObjectServiceImpl implements WeatherObjectService {
     }
 
     @Override
-    public List<WeatherObject> getWeatherObjects(UUID userId) {
-        if (userId == null) throw new IllegalArgumentException("ID cannot be null");
-        return weatherObjectRepository.findByUserId(userId);
+    public List<WeatherObject> getWeatherObjects(User user) {
+        if (user == null) throw new IllegalArgumentException("ID cannot be null");
+        return weatherObjectRepository.findByUser(user);
     }
 
     @Override
@@ -44,11 +45,11 @@ public class WeatherObjectServiceImpl implements WeatherObjectService {
     }
 
     @Override
-    public WeatherObject fetchAndSaveWeatherData(UUID userId, Geolocation location) {
+    public WeatherObject fetchAndSaveWeatherData(User user, Geolocation location) {
         WeatherObject weatherObject;
         if (location != null) {
             try {
-               weatherObject = weatherApiClient.fetchWeatherData(location, "weather", userId);
+               weatherObject = weatherApiClient.fetchWeatherData(location, "weather", user);
             } catch (Exception e) {
                 throw new IllegalArgumentException("Failed to fetch weather data");
             }

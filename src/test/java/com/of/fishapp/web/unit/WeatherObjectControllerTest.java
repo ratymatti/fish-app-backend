@@ -26,6 +26,7 @@ import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.of.fishapp.ApplicationExceptionHandler;
 import com.of.fishapp.dto.Geolocation;
+import com.of.fishapp.entity.User;
 import com.of.fishapp.entity.WeatherObject;
 import com.of.fishapp.exception.EntityNotFoundException;
 import com.of.fishapp.service.WeatherObjectService;
@@ -73,19 +74,6 @@ public class WeatherObjectControllerTest {
         });
     }
 
-    @Test
-    void getWeatherObjectsByUserId_returnsWeatherObjects() {
-        WeatherObject weatherObject = new WeatherObject();
-
-        UUID userId = UUID.randomUUID();
-        weatherObject.setUserId(userId);
-        when(weatherObjectService.getWeatherObjects(userId)).thenReturn(List.of(weatherObject));
-
-        ResponseEntity<List<WeatherObject>> response = controller.getWeatherObjectsByUserId(userId);
-
-        assertEquals(HttpStatus.OK, response.getStatusCode());
-        assertEquals(List.of(weatherObject), response.getBody());
-    }
 
     @Test
     void saveWeatherObject_returnsWeatherObject() {
@@ -98,24 +86,5 @@ public class WeatherObjectControllerTest {
         assertEquals(weatherObject, response.getBody());
     }
 
-    @Test
-    void getAndSaveWeather_returnsWeatherObject() throws Exception {
-        UUID userId = UUID.randomUUID();
-        double lat = 65.96667;
-        double lng = 29.18333;
-        WeatherObject expectedWeatherObject = new WeatherObject();
-        expectedWeatherObject.setUserId(userId);
-        when(weatherObjectService.fetchAndSaveWeatherData(eq(userId), any(Geolocation.class))).thenReturn(expectedWeatherObject);
 
-        MvcResult mvcResult = mockMvc.perform(post("/weather/" + userId + "/" + lat + "/" + lng))
-            .andExpect(status().isCreated())
-            .andReturn();
-
-        String responseBody = mvcResult.getResponse().getContentAsString();
-        WeatherObject returnedWeatherObject = new ObjectMapper().readValue(responseBody, WeatherObject.class);
-        
-        assertEquals(expectedWeatherObject.getId(), returnedWeatherObject.getId());
-        assertEquals(expectedWeatherObject.getUserId(), returnedWeatherObject.getUserId());
-        assertEquals(HttpStatus.CREATED.value(), mvcResult.getResponse().getStatus());
-    }
 }

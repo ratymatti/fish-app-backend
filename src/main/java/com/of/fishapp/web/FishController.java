@@ -17,7 +17,6 @@ import java.util.UUID;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -31,16 +30,6 @@ public class FishController {
     FishService fishService;
     UserService userService;
 
-    @GetMapping("/{fishId}")
-    public ResponseEntity<Fish> findById(@PathVariable UUID fishId) {
-        if (fishId == null) throw new IllegalArgumentException("ID cannot be null");
-        Fish fish = fishService.getFishById(fishId);
-        if (fish != null) {
-            return new ResponseEntity<>(fish, HttpStatus.OK);
-        } else {
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-        } 
-    }
 
     @PostMapping("/save/{userId}")
     public ResponseEntity<Fish> saveFish(@Valid @RequestBody Fish fish, @PathVariable UUID userId) {

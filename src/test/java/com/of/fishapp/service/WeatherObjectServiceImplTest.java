@@ -15,6 +15,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.boot.test.context.SpringBootTest;
 
+import com.of.fishapp.entity.User;
 import com.of.fishapp.entity.WeatherObject;
 import com.of.fishapp.repository.WeatherObjectRepository;
 
@@ -49,10 +50,11 @@ public class WeatherObjectServiceImplTest {
     @Test 
     void getWeatherObjects_returnsWeatherObjects() {
         UUID userId = UUID.randomUUID();
+        User user = new User();
         WeatherObject weatherObject = new WeatherObject();
-        when(weatherObjectRepository.findByUserId(userId)).thenReturn(List.of(weatherObject));
+        when(weatherObjectRepository.findByUser(user)).thenReturn(List.of(weatherObject));
 
-        List<WeatherObject> actualWeatherObjects = weatherObjectService.getWeatherObjects(userId);
+        List<WeatherObject> actualWeatherObjects = weatherObjectService.getWeatherObjects(user);
 
         assertEquals(List.of(weatherObject), actualWeatherObjects);
     }

@@ -13,6 +13,7 @@ import org.springframework.web.client.RestTemplate;
 import com.of.fishapp.dto.Geolocation;
 import com.of.fishapp.dto.Weather;
 import com.of.fishapp.dto.WeatherInfo;
+import com.of.fishapp.entity.User;
 import com.of.fishapp.entity.WeatherObject;
 import com.of.fishapp.mapper.WeatherDataMapper;
 
@@ -42,28 +43,27 @@ public class WeatherApiClientTest {
     public void testFetchWeatherData() {
         Geolocation location = new Geolocation(65.96667, 29.18333);
         String type = "weather";
-        UUID userId = UUID.randomUUID();
-        String userIdString = userId.toString();
-        String responseJson = getJsonResponse(userIdString);
-
-        ResponseEntity<Object> responseEntity = new ResponseEntity<>(responseJson, HttpStatus.OK);
+        User user = new User();
         
-        WeatherObject expectedWeatherObject = createWeatherObject();
+
+        ResponseEntity<Object> responseEntity = new ResponseEntity<>(HttpStatus.OK);
+        
+        WeatherObject expectedWeatherObject = createWeatherObject(user);
 
         lenient().when(restTemplate.getForEntity(anyString(), any())).thenReturn(responseEntity);
         when(weatherDataMapper.createWeatherObject(any(), any(), any(), any())).thenReturn(expectedWeatherObject);
 
-        WeatherObject actualWeatherObject = weatherApiClient.fetchWeatherData(location, type, userId);
+        WeatherObject actualWeatherObject = weatherApiClient.fetchWeatherData(location, type, user);
 
         assertEquals(expectedWeatherObject, actualWeatherObject);
         assertEquals(HttpStatus.OK, responseEntity.getStatusCode());
     }
 
-    private WeatherObject createWeatherObject() {
+    private WeatherObject createWeatherObject(User user) {
 
         WeatherObject weatherObject = new WeatherObject();
         weatherObject.setId(UUID.randomUUID());
-        weatherObject.setUserId(UUID.randomUUID());
+        weatherObject.setUser(user);
         weatherObject.setType("weather");
         weatherObject.setName("Kuusamo");
         weatherObject.setInfo("clear sky");

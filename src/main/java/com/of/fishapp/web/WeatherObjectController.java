@@ -12,21 +12,27 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.of.fishapp.dto.Geolocation;
+import com.of.fishapp.entity.User;
 import com.of.fishapp.entity.WeatherObject;
+import com.of.fishapp.service.UserService;
 import com.of.fishapp.service.WeatherObjectService;
 
 import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
+import lombok.NoArgsConstructor;
+
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 
 @CrossOrigin(origins = "http://localhost:3000")
 @AllArgsConstructor
+@NoArgsConstructor
 @RestController
 @RequestMapping("/weather")
 public class WeatherObjectController {
     
     WeatherObjectService weatherObjectService;
+    UserService userService;
 
     @GetMapping("/{id}")
     public ResponseEntity<WeatherObject> findById(@PathVariable UUID id) {
@@ -36,7 +42,8 @@ public class WeatherObjectController {
 
     @GetMapping("/user/{userId}")
     public ResponseEntity<List<WeatherObject>> getWeatherObjectsByUserId(@PathVariable UUID userId) {
-        List<WeatherObject> weatherObjects = weatherObjectService.getWeatherObjects(userId);
+        User user = userService.getUser(userId);
+        List<WeatherObject> weatherObjects = weatherObjectService.getWeatherObjects(user);
         return new ResponseEntity<>(weatherObjects, HttpStatus.OK);
     }
 
@@ -49,7 +56,8 @@ public class WeatherObjectController {
     @PostMapping("/{userId}/{lat}/{lng}")
     public ResponseEntity<WeatherObject> getAndSaveWeather(@PathVariable UUID userId, @PathVariable double lat, @PathVariable double lng) {
         Geolocation location = new Geolocation(lat, lng);
-        WeatherObject weatherObject = weatherObjectService.fetchAndSaveWeatherData(userId, location);
+        User user = userService.getUser(userId);
+        WeatherObject weatherObject = weatherObjectService.fetchAndSaveWeatherData(user, location);
         return new ResponseEntity<>(weatherObject, HttpStatus.CREATED);
     }
 
