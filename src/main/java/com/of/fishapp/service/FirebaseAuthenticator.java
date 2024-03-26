@@ -29,8 +29,7 @@ public class FirebaseAuthenticator {
 
     public String getUidFromToken(IdToken idToken) throws FirebaseAuthException {
         String idTokenString = idToken.getIdToken();
-        FirebaseToken token = firebaseAuth.verifyIdToken(idTokenString);
-        return token.getUid();
+        return firebaseAuth.verifyIdToken(idTokenString).getUid();
     }
 
     public UserDetails getUserDetails(IdToken idToken) throws FirebaseAuthException {
