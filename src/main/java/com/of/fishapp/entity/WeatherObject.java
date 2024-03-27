@@ -1,6 +1,5 @@
 package com.of.fishapp.entity;
 
-import java.util.List;
 import java.util.UUID;
 
 import org.hibernate.annotations.GenericGenerator;
@@ -9,7 +8,6 @@ import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.of.fishapp.dto.Geolocation;
 import com.of.fishapp.dto.WeatherInfo;
 
-import jakarta.persistence.ElementCollection;
 import jakarta.persistence.Embedded;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -45,8 +43,6 @@ public class WeatherObject {
 
     private Geolocation coords;
 
-    @ElementCollection
-    private List<WeatherInfo> forecastArray;
 
     @Embedded
     private WeatherInfo currentWeather;

@@ -29,7 +29,6 @@ public class WeatherObjectServiceImplTest {
     @InjectMocks
     private WeatherObjectServiceImpl weatherObjectService;
 
-    @SuppressWarnings("null")
     @Test
     void getWeatherObject_returnsWeatherObject() {
         UUID id = UUID.randomUUID();
@@ -49,7 +48,6 @@ public class WeatherObjectServiceImplTest {
 
     @Test 
     void getWeatherObjects_returnsWeatherObjects() {
-        UUID userId = UUID.randomUUID();
         User user = new User();
         WeatherObject weatherObject = new WeatherObject();
         when(weatherObjectRepository.findByUser(user)).thenReturn(List.of(weatherObject));

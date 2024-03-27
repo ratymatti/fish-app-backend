@@ -38,7 +38,6 @@ public class User {
 
     private String googleId;
 
-
     private String email;
 
     @NotBlank

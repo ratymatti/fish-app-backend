@@ -38,7 +38,6 @@ public class WeatherApiClientTest {
     @InjectMocks
     private WeatherApiClient weatherApiClient;
 
-    @SuppressWarnings("null")
     @Test
     public void testFetchWeatherData() {
         Geolocation location = new Geolocation(65.96667, 29.18333);
@@ -90,7 +89,7 @@ public class WeatherApiClientTest {
 
         return weatherObject;
     }
-
+    /* 
     private String getJsonResponse(String userIdString) {
         return "{\n" + //
         "    \"id\": \"a275e159-ecf5-48cf-917e-c89c951c27d1\",\n" + //
@@ -116,5 +115,5 @@ public class WeatherApiClientTest {
         "        }\n" + //
         "    }\n" + //
         "}";
-    }
+    }*/
 }
