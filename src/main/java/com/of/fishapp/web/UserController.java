@@ -24,6 +24,7 @@ import com.of.fishapp.entity.Fish;
 import com.of.fishapp.service.UserService;
 
 import com.of.fishapp.service.FirebaseAuthenticator;
+import static com.of.fishapp.util.IdTokenUtil.removeBearerPrefix;
 
 import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
@@ -57,7 +58,7 @@ public class UserController {
     @GetMapping("/fishes")
     public ResponseEntity<List<Fish>> getFishesByUserId(@RequestHeader("Authorization") IdToken idToken) {
         try {
-            idToken.setIdToken(idToken.getIdToken().substring(7)); // Remove "Bearer " from the token
+            removeBearerPrefix(idToken);
             if (!authenticator.verifyIdToken(idToken)) {
                 return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
             }
