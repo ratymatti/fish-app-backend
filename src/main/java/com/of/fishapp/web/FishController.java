@@ -3,9 +3,12 @@ package com.of.fishapp.web;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.google.firebase.auth.FirebaseAuthException;
+import com.of.fishapp.dto.IdToken;
 import com.of.fishapp.entity.Fish;
 import com.of.fishapp.entity.User;
 import com.of.fishapp.exception.EntityNotFoundException;
+import com.of.fishapp.service.FirebaseAuthenticator;
 import com.of.fishapp.service.FishService;
 import com.of.fishapp.service.UserService;
 
@@ -14,30 +17,47 @@ import lombok.AllArgsConstructor;
 
 import java.util.UUID;
 
+import static com.of.fishapp.util.IdTokenUtil.removeBearerPrefix;
+
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
-
+import org.springframework.web.bind.annotation.RequestHeader;
 
 @RestController
 @AllArgsConstructor
 @RequestMapping("/fish")
 public class FishController {
-    
+
     FishService fishService;
     UserService userService;
+    FirebaseAuthenticator authenticator;
 
+    @PostMapping("/save")
+    public ResponseEntity<Fish> saveFish(@Valid @RequestBody Fish fish,
+            @RequestHeader("Authorization") IdToken idToken) {
+        try {
+            removeBearerPrefix(idToken);
+            if (!authenticator.verifyIdToken(idToken)) {
+                return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
+            }
+            String googleId = authenticator.getUidFromToken(idToken);
+            User user = userService.getUserByGoogleId(googleId);
 
-    @PostMapping("/save/{userId}")
-    public ResponseEntity<Fish> saveFish(@Valid @RequestBody Fish fish, @PathVariable UUID userId) {
-        User user = userService.getUser(userId);
-        if (user  == null) throw new EntityNotFoundException(userId, User.class);
-        fish.setUser(user);
-        Fish savedFish = fishService.saveFish(fish);
-        return new ResponseEntity<>(savedFish, HttpStatus.CREATED);
+            if (user == null) {
+                throw new EntityNotFoundException(User.class);
+            }
+
+            fish.setUser(user);
+            fishService.saveFish(fish);
+            return new ResponseEntity<>(HttpStatus.CREATED);
+
+        } catch (FirebaseAuthException e) {
+            return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
+        }
     }
 
     @DeleteMapping("/delete/{fishId}")
@@ -51,5 +71,5 @@ public class FishController {
         Fish updatedFish = fishService.updateFish(fish);
         return new ResponseEntity<>(updatedFish, HttpStatus.OK);
     }
-    
+
 }
