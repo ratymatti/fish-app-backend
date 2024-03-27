@@ -52,8 +52,8 @@ public class FishController {
             }
 
             fish.setUser(user);
-            fishService.saveFish(fish);
-            return new ResponseEntity<>(HttpStatus.CREATED);
+            Fish savedFish = fishService.saveFish(fish);
+            return new ResponseEntity<>(savedFish, HttpStatus.CREATED);
 
         } catch (FirebaseAuthException e) {
             return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
