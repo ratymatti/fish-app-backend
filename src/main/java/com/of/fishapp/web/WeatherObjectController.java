@@ -34,12 +34,6 @@ public class WeatherObjectController {
     WeatherObjectService weatherObjectService;
     UserService userService;
 
-    @GetMapping("/{id}")
-    public ResponseEntity<WeatherObject> findById(@PathVariable UUID id) {
-        WeatherObject weatherObject = weatherObjectService.getWeatherObject(id);
-        return new ResponseEntity<>(weatherObject, HttpStatus.OK);
-    }
-
     @GetMapping("/user/{userId}")
     public ResponseEntity<List<WeatherObject>> getWeatherObjectsByUserId(@PathVariable UUID userId) {
         User user = userService.getUser(userId);
