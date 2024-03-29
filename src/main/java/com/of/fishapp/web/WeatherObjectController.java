@@ -54,7 +54,7 @@ public class WeatherObjectController {
     }
 
     @PostMapping("/fetch/current")
-    public ResponseEntity<WeatherObject> getAndSaveWeather(@Valid @RequestBody Geolocation location,
+    public ResponseEntity<WeatherObject> fetchAndSaveWeather(@Valid @RequestBody Geolocation location,
             @RequestHeader("Authorization") IdToken idToken) {
 
         try {
