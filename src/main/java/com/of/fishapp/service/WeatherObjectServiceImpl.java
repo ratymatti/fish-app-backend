@@ -46,20 +46,18 @@ public class WeatherObjectServiceImpl implements WeatherObjectService {
 
     @Override
     public WeatherObject fetchAndSaveWeatherData(User user, Geolocation location) {
-        WeatherObject weatherObject;
+        
         if (location != null) {
             try {
-               weatherObject = weatherApiClient.fetchWeatherData(location, "weather", user);
+                WeatherObject weatherObject = weatherApiClient.fetchWeatherData(location, "weather", user);
+                if (weatherObject != null) return weatherObjectRepository.save(weatherObject);
             } catch (Exception e) {
                 throw new IllegalArgumentException("Failed to fetch weather data");
             }
         } else {
             throw new IllegalArgumentException("Location cannot be null");
         }
-
-        if (weatherObject != null) weatherObjectRepository.save(weatherObject);
-
-        return weatherObject;
+        return null;
     }
 
     static WeatherObject unwrapWeatherObject(Optional<WeatherObject> entity, UUID id) {
