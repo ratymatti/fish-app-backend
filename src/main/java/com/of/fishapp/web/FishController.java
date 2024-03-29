@@ -52,6 +52,7 @@ public class FishController {
             }
 
             fish.setUser(user);
+
             Fish savedFish = fishService.saveFish(fish);
             return new ResponseEntity<>(savedFish, HttpStatus.CREATED);
 
