@@ -61,6 +61,4 @@ public class Fish {
 
     private String date;
 
-    private String dateString;
-
 }
