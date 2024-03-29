@@ -23,6 +23,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.of.fishapp.ApplicationExceptionHandler;
 import com.of.fishapp.entity.WeatherObject;
 import com.of.fishapp.exception.EntityNotFoundException;
+import com.of.fishapp.service.FirebaseAuthenticator;
 import com.of.fishapp.service.UserService;
 import com.of.fishapp.service.WeatherObjectService;
 import com.of.fishapp.web.WeatherObjectController;
@@ -36,6 +37,9 @@ public class WeatherObjectControllerIntegrationTest {
     @Mock
     private UserService userService;
 
+    @Mock
+    private FirebaseAuthenticator authenticator;
+
     @InjectMocks
     private WeatherObjectController controller;
 
@@ -44,7 +48,7 @@ public class WeatherObjectControllerIntegrationTest {
     @BeforeEach
     void setUp() {
         MockitoAnnotations.openMocks(this);
-        this.mockMvc = MockMvcBuilders.standaloneSetup(new WeatherObjectController(weatherObjectService, userService))
+        this.mockMvc = MockMvcBuilders.standaloneSetup(new WeatherObjectController(weatherObjectService, userService, authenticator))
                 .setControllerAdvice(new ApplicationExceptionHandler())
                 .build();
     }
