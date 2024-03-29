@@ -50,7 +50,10 @@ public class WeatherObjectServiceImpl implements WeatherObjectService {
         if (location != null) {
             try {
                 WeatherObject weatherObject = weatherApiClient.fetchWeatherData(location, "weather", user);
-                if (weatherObject != null) return weatherObjectRepository.save(weatherObject);
+                if (weatherObject != null) {
+                    weatherObject.setUser(user);
+                    return weatherObjectRepository.save(weatherObject);
+                } 
             } catch (Exception e) {
                 throw new IllegalArgumentException("Failed to fetch weather data");
             }
