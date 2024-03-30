@@ -8,6 +8,7 @@ import java.util.UUID;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -71,6 +72,28 @@ public class WeatherObjectController {
             }
             WeatherObject weatherObject = weatherObjectService.fetchAndSaveWeatherData(user, location);
             return new ResponseEntity<>(weatherObject, HttpStatus.CREATED);
+        } catch (FirebaseAuthException e) {
+            return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
+        }
+    }
+
+    @DeleteMapping("/delete/{idToRemove}")
+    public ResponseEntity<Void> deleteWeatherObject(@PathVariable UUID idToRemove, @RequestHeader("Authorization") IdToken idToken) {
+        try {
+            removeBearerPrefix(idToken);
+            if (!authenticator.verifyIdToken(idToken)) {
+                return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
+            }
+            
+            String googleId = authenticator.getUidFromToken(idToken);
+            User user = userService.getUserByGoogleId(googleId);
+
+            if (user == null) {
+                throw new EntityNotFoundException(User.class);
+            }
+            
+            weatherObjectService.deleteWeatherObject(idToRemove);
+            return new ResponseEntity<>(HttpStatus.NO_CONTENT);
         } catch (FirebaseAuthException e) {
             return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
         }
