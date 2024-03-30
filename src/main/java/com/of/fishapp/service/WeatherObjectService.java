@@ -12,4 +12,5 @@ public interface WeatherObjectService {
     List<WeatherObject> getWeatherObjects(User user);
     WeatherObject saveWeatherObject(WeatherObject weatherObject);
     WeatherObject fetchAndSaveWeatherData(User user, Geolocation location);
+    void deleteWeatherObject(UUID idToRemove);
 }
