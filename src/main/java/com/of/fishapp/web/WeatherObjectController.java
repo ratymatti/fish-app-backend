@@ -54,7 +54,7 @@ public class WeatherObjectController {
         return new ResponseEntity<>(savedWeatherObject, HttpStatus.CREATED);
     }
 
-    @PostMapping("/fetch/current")
+    @PostMapping("/fetch/tracking")
     public ResponseEntity<WeatherObject> fetchAndSaveWeather(@Valid @RequestBody Geolocation location,
             @RequestHeader("Authorization") IdToken idToken) {
 
@@ -76,6 +76,30 @@ public class WeatherObjectController {
             return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
         }
     }
+
+    @PostMapping("/fetch/current")
+    public ResponseEntity<WeatherObject> fetchCurrentWeather(@Valid @RequestBody Geolocation location,
+            @RequestHeader("Authorization") IdToken idToken) {
+
+        try {
+            removeBearerPrefix(idToken);
+            if (!authenticator.verifyIdToken(idToken)) {
+                return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
+            }
+            
+            String googleId = authenticator.getUidFromToken(idToken);
+            User user = userService.getUserByGoogleId(googleId);
+
+            if (user == null) {
+                throw new EntityNotFoundException(User.class);
+            }
+            WeatherObject weatherObject = weatherObjectService.fetchCurrentWeather(user, location);
+            return new ResponseEntity<>(weatherObject, HttpStatus.OK);
+        } catch (FirebaseAuthException e) {
+            return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
+        }
+    }
+    
 
     @DeleteMapping("/delete/{idToRemove}")
     public ResponseEntity<Void> deleteWeatherObject(@PathVariable UUID idToRemove, @RequestHeader("Authorization") IdToken idToken) {

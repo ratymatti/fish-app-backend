@@ -67,6 +67,24 @@ public class WeatherObjectServiceImpl implements WeatherObjectService {
     }
 
     @Override
+    public WeatherObject fetchCurrentWeather(User user, Geolocation location) {
+        if (location != null) {
+            try {
+                WeatherObject weatherObject = weatherApiClient.fetchWeatherData(location, "weather", user);
+                if (weatherObject != null) {
+                    weatherObject.setUser(user);
+                    return weatherObject;
+                }
+            } catch (Exception e) {
+                throw new IllegalArgumentException("Failed to fetch weather data");
+            }
+        } else {
+            throw new IllegalArgumentException("Location cannot be null");
+        }
+        return null;
+    }
+
+    @Override
     @Transactional
     public void deleteWeatherObject(UUID idToRemove) {
         if (idToRemove == null)
