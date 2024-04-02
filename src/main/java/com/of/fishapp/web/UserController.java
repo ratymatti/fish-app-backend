@@ -58,16 +58,7 @@ public class UserController {
     @GetMapping("/fishes")
     public ResponseEntity<List<Fish>> getFishesByUserId(@RequestHeader("Authorization") IdToken idToken) {
         try {
-            removeBearerPrefix(idToken);
-            if (!authenticator.verifyIdToken(idToken)) {
-                return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
-            }
-            String googleId = authenticator.getUidFromToken(idToken);
-            User user = userService.getUserByGoogleId(googleId);
-
-            if (user == null) {
-                throw new EntityNotFoundException(User.class);
-            }
+            User user = authenticator.validateUser(idToken);
 
             List<Fish> userFishes = user.getFishes();
 
@@ -78,7 +69,7 @@ public class UserController {
     }
 
     @PostMapping("/authenticate")
-    public ResponseEntity<String> authenticateUser(@Valid @RequestBody IdToken idToken) {
+    public ResponseEntity<String> authenticateUser(@RequestHeader("Authorization") IdToken idToken) {
         try {
             if (!authenticator.verifyIdToken(idToken)) {
                 return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
