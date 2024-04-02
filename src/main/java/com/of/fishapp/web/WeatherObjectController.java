@@ -59,17 +59,7 @@ public class WeatherObjectController {
             @RequestHeader("Authorization") IdToken idToken) {
 
         try {
-            removeBearerPrefix(idToken);
-            if (!authenticator.verifyIdToken(idToken)) {
-                return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
-            }
-            
-            String googleId = authenticator.getUidFromToken(idToken);
-            User user = userService.getUserByGoogleId(googleId);
-
-            if (user == null) {
-                throw new EntityNotFoundException(User.class);
-            }
+            User user = authenticator.validateUser(idToken);
             WeatherObject weatherObject = weatherObjectService.fetchAndSaveWeatherData(user, location);
             return new ResponseEntity<>(weatherObject, HttpStatus.CREATED);
         } catch (FirebaseAuthException e) {
@@ -82,17 +72,7 @@ public class WeatherObjectController {
             @RequestHeader("Authorization") IdToken idToken) {
 
         try {
-            removeBearerPrefix(idToken);
-            if (!authenticator.verifyIdToken(idToken)) {
-                return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
-            }
-            
-            String googleId = authenticator.getUidFromToken(idToken);
-            User user = userService.getUserByGoogleId(googleId);
-
-            if (user == null) {
-                throw new EntityNotFoundException(User.class);
-            }
+            User user = authenticator.validateUser(idToken);
             WeatherObject weatherObject = weatherObjectService.fetchCurrentWeather(user, location);
             return new ResponseEntity<>(weatherObject, HttpStatus.OK);
         } catch (FirebaseAuthException e) {
@@ -104,18 +84,7 @@ public class WeatherObjectController {
     @DeleteMapping("/delete/{idToRemove}")
     public ResponseEntity<Void> deleteWeatherObject(@PathVariable UUID idToRemove, @RequestHeader("Authorization") IdToken idToken) {
         try {
-            removeBearerPrefix(idToken);
-            if (!authenticator.verifyIdToken(idToken)) {
-                return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
-            }
-            
-            String googleId = authenticator.getUidFromToken(idToken);
-            User user = userService.getUserByGoogleId(googleId);
-
-            if (user == null) {
-                throw new EntityNotFoundException(User.class);
-            }
-            
+            authenticator.validateUser(idToken);
             weatherObjectService.deleteWeatherObject(idToRemove);
             return new ResponseEntity<>(HttpStatus.NO_CONTENT);
         } catch (FirebaseAuthException e) {
