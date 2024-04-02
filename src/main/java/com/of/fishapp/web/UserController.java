@@ -9,7 +9,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -26,7 +25,6 @@ import com.of.fishapp.service.UserService;
 import com.of.fishapp.service.FirebaseAuthenticator;
 import static com.of.fishapp.util.IdTokenUtil.removeBearerPrefix;
 
-import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
 
 @AllArgsConstructor
@@ -71,6 +69,7 @@ public class UserController {
     @PostMapping("/authenticate")
     public ResponseEntity<String> authenticateUser(@RequestHeader("Authorization") IdToken idToken) {
         try {
+            removeBearerPrefix(idToken);
             if (!authenticator.verifyIdToken(idToken)) {
                 return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
             }
