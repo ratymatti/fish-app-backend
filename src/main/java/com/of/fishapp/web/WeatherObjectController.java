@@ -1,7 +1,5 @@
 package com.of.fishapp.web;
 
-import static com.of.fishapp.util.IdTokenUtil.removeBearerPrefix;
-
 import java.util.List;
 import java.util.UUID;
 
@@ -19,7 +17,6 @@ import com.of.fishapp.dto.Geolocation;
 import com.of.fishapp.dto.IdToken;
 import com.of.fishapp.entity.User;
 import com.of.fishapp.entity.WeatherObject;
-import com.of.fishapp.exception.EntityNotFoundException;
 import com.of.fishapp.service.FirebaseAuthenticator;
 import com.of.fishapp.service.UserService;
 import com.of.fishapp.service.WeatherObjectService;
