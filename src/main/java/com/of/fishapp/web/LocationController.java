@@ -37,5 +37,4 @@ public class LocationController {
         return new ResponseEntity<>(location, HttpStatus.CREATED); 
     }
 
-    // Add other methods as needed, such as update and delete
 }

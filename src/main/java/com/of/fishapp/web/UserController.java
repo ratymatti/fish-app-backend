@@ -35,14 +35,6 @@ public class UserController {
     UserService userService;
     FirebaseAuthenticator authenticator;
 
-    @GetMapping("/id/{userId}")
-    public ResponseEntity<User> findById(@PathVariable UUID userId) {
-        User user = userService.getUser(userId);
-        if (user == null)
-            throw new EntityNotFoundException(userId, User.class);
-
-        return new ResponseEntity<>(user, HttpStatus.OK);
-    }
 
     @GetMapping("/id/{userId}/locations")
     public ResponseEntity<List<Location>> getLocationsByUserId(@PathVariable UUID userId) {
@@ -54,7 +46,7 @@ public class UserController {
     }
 
     @GetMapping("/fishes")
-    public ResponseEntity<List<Fish>> getFishesByUserId(@RequestHeader("Authorization") IdToken idToken) {
+    public ResponseEntity<List<Fish>> getFishesByUser(@RequestHeader("Authorization") IdToken idToken) {
         try {
             User user = authenticator.validateUser(idToken);
 

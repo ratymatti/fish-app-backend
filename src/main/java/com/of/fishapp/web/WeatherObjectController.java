@@ -1,13 +1,11 @@
 package com.of.fishapp.web;
 
-import java.util.List;
 import java.util.UUID;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -38,18 +36,6 @@ public class WeatherObjectController {
     UserService userService;
     FirebaseAuthenticator authenticator;
 
-    @GetMapping("/user/{userId}")
-    public ResponseEntity<List<WeatherObject>> getWeatherObjectsByUserId(@PathVariable UUID userId) {
-        User user = userService.getUser(userId);
-        List<WeatherObject> weatherObjects = weatherObjectService.getWeatherObjects(user);
-        return new ResponseEntity<>(weatherObjects, HttpStatus.OK);
-    }
-
-    @PostMapping("/save")
-    public ResponseEntity<WeatherObject> saveWeatherObject(@Valid @RequestBody WeatherObject weatherObject) {
-        WeatherObject savedWeatherObject = weatherObjectService.saveWeatherObject(weatherObject);
-        return new ResponseEntity<>(savedWeatherObject, HttpStatus.CREATED);
-    }
 
     @PostMapping("/fetch/tracking")
     public ResponseEntity<WeatherObject> fetchAndSaveWeather(@Valid @RequestBody Geolocation location,

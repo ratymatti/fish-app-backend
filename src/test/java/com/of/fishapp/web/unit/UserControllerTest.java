@@ -100,21 +100,6 @@ public class UserControllerTest {
     }
 
     @Test
-    void findById_returnsUser() {
-
-        User user = new User();
-        user.setName("Test User");
-        UUID userId = UUID.randomUUID();
-        when(userService.getUser(userId)).thenReturn(user);
-
-        ResponseEntity<User> response = controller.findById(userId);
-
-        assertEquals(HttpStatus.OK, response.getStatusCode());
-        assertEquals(user.getName(), response.getBody().getName());
-    }
-
-
-    @Test
     void getLocationsByUserId_returnsLocations() {
         UUID userId = UUID.randomUUID();
         User user = new User();
