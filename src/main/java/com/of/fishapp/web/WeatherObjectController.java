@@ -1,11 +1,13 @@
 package com.of.fishapp.web;
 
+import java.util.List;
 import java.util.UUID;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -62,7 +64,6 @@ public class WeatherObjectController {
             return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
         }
     }
-    
 
     @DeleteMapping("/delete/{idToRemove}")
     public ResponseEntity<Void> deleteWeatherObject(@PathVariable UUID idToRemove, @RequestHeader("Authorization") IdToken idToken) {
@@ -70,6 +71,17 @@ public class WeatherObjectController {
             authenticator.validateUser(idToken);
             weatherObjectService.deleteWeatherObject(idToRemove);
             return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+        } catch (FirebaseAuthException e) {
+            return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
+        }
+    }
+
+    @GetMapping("/user/trackings")
+    public ResponseEntity<List<WeatherObject>> getUserTrackings(@RequestHeader("Authorization") IdToken idToken) {
+        try {
+            User user = authenticator.validateUser(idToken);
+            List<WeatherObject> userTrackings = weatherObjectService.getWeatherObjects(user);
+            return new ResponseEntity<>(userTrackings, HttpStatus.OK);
         } catch (FirebaseAuthException e) {
             return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
         }
