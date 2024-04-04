@@ -1,4 +1,4 @@
-package com.of.fishapp.web.unit;
+package com.of.fishapp.web;
 /*
 import static org.junit.jupiter.api.Assertions.assertEquals;
 

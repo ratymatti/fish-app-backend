@@ -1,4 +1,4 @@
-package com.of.fishapp.web.unit;
+package com.of.fishapp.web;
 
 
 import com.google.firebase.auth.FirebaseAuthException;
