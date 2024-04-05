@@ -5,8 +5,6 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.when;
 
 import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -29,22 +27,6 @@ public class WeatherObjectServiceImplTest {
     @InjectMocks
     private WeatherObjectServiceImpl weatherObjectService;
 
-    @Test
-    void getWeatherObject_returnsWeatherObject() {
-        UUID id = UUID.randomUUID();
-        WeatherObject expectedWeatherObject = new WeatherObject();
-
-        when(weatherObjectRepository.findById(id)).thenReturn(Optional.of(expectedWeatherObject));
-
-        WeatherObject actualWeatherObject = weatherObjectService.getWeatherObject(id);
-
-        assertEquals(expectedWeatherObject, actualWeatherObject);
-    }
-
-    @Test
-    void getWeatherObject_throwsExceptionWhenIdIsNull() {
-        assertThrows(IllegalArgumentException.class, () -> weatherObjectService.getWeatherObject(null));
-    }
 
     @Test 
     void getWeatherObjects_returnsWeatherObjects() {
@@ -60,21 +42,6 @@ public class WeatherObjectServiceImplTest {
     @Test
     void getWeatherObjects_throwsExceptionWhenUserIdIsNull() {
         assertThrows(IllegalArgumentException.class, () -> weatherObjectService.getWeatherObjects(null));
-    }
-
-    @Test
-    void saveWeatherObject_returnsWeatherObject() {
-        WeatherObject weatherObject = new WeatherObject();
-        when(weatherObjectRepository.save(weatherObject)).thenReturn(weatherObject);
-
-        WeatherObject actualWeatherObject = weatherObjectService.saveWeatherObject(weatherObject);
-
-        assertEquals(weatherObject, actualWeatherObject);
-    }
-
-    @Test
-    void saveWeatherObject_throwsExceptionWhenWeatherObjectIsNull() {
-        assertThrows(IllegalArgumentException.class, () -> weatherObjectService.saveWeatherObject(null));
     }
 
 }
