@@ -24,27 +24,11 @@ public class WeatherObjectServiceImpl implements WeatherObjectService {
     private WeatherApiClient weatherApiClient;
 
     @Override
-    public WeatherObject getWeatherObject(UUID id) {
-        if (id == null)
-            throw new IllegalArgumentException("ID cannot be null");
-        Optional<WeatherObject> weatherObject = weatherObjectRepository.findById(id);
-        return unwrapWeatherObject(weatherObject, id);
-    }
-
-    @Override
     public List<WeatherObject> getWeatherObjects(User user) {
-        if (user == null)
+        if (user == null) {
             throw new IllegalArgumentException("ID cannot be null");
-        return weatherObjectRepository.findByUser(user);
-    }
-
-    @Override
-    public WeatherObject saveWeatherObject(WeatherObject weatherObject) {
-        if (weatherObject != null) {
-            return weatherObjectRepository.save(weatherObject);
-        } else {
-            throw new IllegalArgumentException("WeatherObject cannot be null");
         }
+        return weatherObjectRepository.findByUser(user);
     }
 
     @Override
@@ -87,9 +71,31 @@ public class WeatherObjectServiceImpl implements WeatherObjectService {
     @Override
     @Transactional
     public void deleteWeatherObject(UUID idToRemove) {
-        if (idToRemove == null)
+        if (idToRemove == null) {
             throw new IllegalArgumentException("ID cannot be null");
+        }
         weatherObjectRepository.deleteById(idToRemove);
+    }
+
+    @Override
+    public WeatherObject updateWeatherObject(UUID weatherId) {
+        if (weatherId == null) {
+            throw new IllegalArgumentException("ID cannot be null");
+        }
+        Optional<WeatherObject> entity = weatherObjectRepository.findById(weatherId);
+        WeatherObject existingWeatherObject = unwrapWeatherObject(entity, weatherId);
+
+        WeatherObject updatedWeatherObject = fetchCurrentWeather(existingWeatherObject.getUser(),
+                existingWeatherObject.getCoords());
+        updateExistingWeatherObject(existingWeatherObject, updatedWeatherObject);
+
+        return weatherObjectRepository.save(existingWeatherObject);
+    }
+
+    private void updateExistingWeatherObject(WeatherObject existingWeatherObject, WeatherObject updatedWeatherObject) {
+        existingWeatherObject.setCurrentWeather(updatedWeatherObject.getCurrentWeather());
+        existingWeatherObject.setInfo(updatedWeatherObject.getInfo());
+        existingWeatherObject.setType(updatedWeatherObject.getType());
     }
 
     static WeatherObject unwrapWeatherObject(Optional<WeatherObject> entity, UUID id) {

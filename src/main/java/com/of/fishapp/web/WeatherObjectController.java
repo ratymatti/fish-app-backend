@@ -25,6 +25,7 @@ import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
 
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
 
@@ -82,6 +83,18 @@ public class WeatherObjectController {
             User user = authenticator.validateUser(idToken);
             List<WeatherObject> userTrackings = weatherObjectService.getWeatherObjects(user);
             return new ResponseEntity<>(userTrackings, HttpStatus.OK);
+        } catch (FirebaseAuthException e) {
+            return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
+        }
+    }
+
+    @PutMapping("/update/{weatherId}")
+    public ResponseEntity<WeatherObject> updateWeatherObject(@PathVariable UUID weatherId,
+            @RequestHeader("Authorization") IdToken idToken) {
+        try {
+            authenticator.validateUser(idToken);
+            WeatherObject updatedWeatherObject = weatherObjectService.updateWeatherObject(weatherId);
+            return new ResponseEntity<>(updatedWeatherObject, HttpStatus.OK);
         } catch (FirebaseAuthException e) {
             return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
         }
