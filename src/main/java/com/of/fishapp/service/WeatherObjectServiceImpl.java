@@ -60,7 +60,7 @@ public class WeatherObjectServiceImpl implements WeatherObjectService {
                     return weatherObject;
                 }
             } catch (Exception e) {
-                throw new IllegalArgumentException("Failed to fetch weather data");
+                throw new IllegalArgumentException("Failed to fetch weather data", e);
             }
         } else {
             throw new IllegalArgumentException("Location cannot be null");
