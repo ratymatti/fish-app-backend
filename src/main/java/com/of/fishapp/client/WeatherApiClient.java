@@ -10,7 +10,6 @@ import org.springframework.web.client.RestTemplate;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.of.fishapp.dto.Geolocation;
-import com.of.fishapp.entity.User;
 import com.of.fishapp.entity.WeatherObject;
 import com.of.fishapp.exception.WeatherFetchException;
 import com.of.fishapp.mapper.WeatherDataMapper;
@@ -28,7 +27,7 @@ public class WeatherApiClient {
     Dotenv dotenv = Dotenv.load();
     private final String API_KEY = dotenv.get("WEATHER_API_KEY");
 
-    public WeatherObject fetchWeatherData(Geolocation location, String type, User user) {
+    public WeatherObject fetchWeatherData(Geolocation location, String type) {
 
         if (location != null) {
             try {
@@ -43,7 +42,7 @@ public class WeatherApiClient {
                     Map<String, Object> data = mapper.readValue(jsonData, new TypeReference<Map<String, Object>>() {
                     });
 
-                    WeatherObject weather = weatherDataMapper.createWeatherObject(data, location, type, user);
+                    WeatherObject weather = weatherDataMapper.createWeatherObject(data, location, type);
                     return weather;
                 }
 

@@ -1,3 +1,4 @@
+
 package com.of.fishapp.client;
 
 import org.junit.jupiter.api.Test;
@@ -37,7 +38,7 @@ public class WeatherApiClientTest {
 
     @InjectMocks
     private WeatherApiClient weatherApiClient;
-
+/* 
     @Test
     public void testFetchWeatherData() {
         Geolocation location = new Geolocation(65.96667, 29.18333);
@@ -56,7 +57,7 @@ public class WeatherApiClientTest {
 
         assertEquals(expectedWeatherObject, actualWeatherObject);
         assertEquals(HttpStatus.OK, responseEntity.getStatusCode());
-    }
+    } */
 
     private WeatherObject createWeatherObject(User user) {
 

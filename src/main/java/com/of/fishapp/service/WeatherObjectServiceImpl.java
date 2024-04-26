@@ -9,6 +9,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.of.fishapp.client.WeatherApiClient;
 import com.of.fishapp.dto.Geolocation;
+import com.of.fishapp.entity.Fish;
 import com.of.fishapp.entity.User;
 import com.of.fishapp.entity.WeatherObject;
 import com.of.fishapp.repository.WeatherObjectRepository;
@@ -36,9 +37,29 @@ public class WeatherObjectServiceImpl implements WeatherObjectService {
 
         if (location != null) {
             try {
-                WeatherObject weatherObject = weatherApiClient.fetchWeatherData(location, "weather", user);
+                WeatherObject weatherObject = weatherApiClient.fetchWeatherData(location, "weather");
                 if (weatherObject != null) {
                     weatherObject.setUser(user);
+                    return weatherObjectRepository.save(weatherObject);
+                }
+            } catch (Exception e) {
+                throw new IllegalArgumentException("Failed to fetch weather data");
+            }
+        } else {
+            throw new IllegalArgumentException("Location cannot be null");
+        }
+        return null;
+    }
+
+    @Override
+    public WeatherObject fetchAndSaveWeatherDataForFish(Fish fish) {
+        if (fish != null) {
+            try {
+                Geolocation geolocation = fish.getGeolocation();
+                WeatherObject weatherObject = weatherApiClient.fetchWeatherData(geolocation, "weather");
+                if (weatherObject != null) {
+                    weatherObject.setFish(fish);
+                    fish.setWeather(weatherObject);
                     return weatherObjectRepository.save(weatherObject);
                 }
             } catch (Exception e) {
@@ -54,7 +75,7 @@ public class WeatherObjectServiceImpl implements WeatherObjectService {
     public WeatherObject fetchCurrentWeather(User user, Geolocation location) {
         if (location != null) {
             try {
-                WeatherObject weatherObject = weatherApiClient.fetchWeatherData(location, "weather", user);
+                WeatherObject weatherObject = weatherApiClient.fetchWeatherData(location, "weather");
                 if (weatherObject != null) {
                     weatherObject.setUser(user);
                     return weatherObject;

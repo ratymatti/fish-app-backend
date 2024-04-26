@@ -5,6 +5,8 @@ import java.util.UUID;
 import org.hibernate.annotations.GenericGenerator;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.of.fishapp.dto.Geolocation;
 
 import jakarta.annotation.Nonnull;
@@ -15,6 +17,7 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
@@ -42,6 +45,12 @@ public class Fish {
     @JoinColumn(name = "userId", nullable = false)
     private User user;
 
+    @JsonManagedReference("fish-weather")
+    @OneToOne
+    @JoinColumn(name = "weather_id")
+    @JsonSerialize
+    private WeatherObject weather;
+
     @Embedded
     private Geolocation geolocation;
 
@@ -60,5 +69,4 @@ public class Fish {
     private String comment;
 
     private String date;
-
 }

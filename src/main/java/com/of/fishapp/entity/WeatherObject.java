@@ -5,15 +5,18 @@ import java.util.UUID;
 import org.hibernate.annotations.GenericGenerator;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.of.fishapp.dto.Geolocation;
 import com.of.fishapp.dto.WeatherInfo;
 
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Embedded;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToOne;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -36,6 +39,11 @@ public class WeatherObject {
     @JsonBackReference
     private User user;
 
+    @JsonBackReference("fish-weather")
+    @OneToOne(mappedBy = "weather", cascade = CascadeType.ALL)
+    @JsonDeserialize
+    private Fish fish;
+
     
     private String type;
     private String name;
@@ -46,5 +54,4 @@ public class WeatherObject {
 
     @Embedded
     private WeatherInfo currentWeather;
-    
 }

@@ -7,10 +7,16 @@ import com.google.firebase.auth.FirebaseAuthException;
 import com.of.fishapp.dto.IdToken;
 import com.of.fishapp.entity.Fish;
 import com.of.fishapp.entity.User;
+import com.of.fishapp.entity.WeatherObject;
 import com.of.fishapp.exception.EntityNotFoundException;
 import com.of.fishapp.service.FirebaseAuthenticator;
 import com.of.fishapp.service.FishService;
 import com.of.fishapp.service.UserService;
+import com.of.fishapp.service.WeatherObjectService;
+import java.time.LocalDate;
+import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
+import java.time.ZonedDateTime;
 
 import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
@@ -34,6 +40,7 @@ public class FishController {
 
     FishService fishService;
     UserService userService;
+    WeatherObjectService weatherObjectService;
     FirebaseAuthenticator authenticator;
 
     @PostMapping("/save")
@@ -53,6 +60,12 @@ public class FishController {
 
             fish.setUser(user);
 
+            if (isFishDateToday(fish)) {
+                WeatherObject weatherObject = weatherObjectService.fetchAndSaveWeatherDataForFish(fish);
+                fish.setWeather(weatherObject);
+                fish = fishService.saveFish(fish);
+            }
+
             Fish savedFish = fishService.saveFish(fish);
             return new ResponseEntity<>(savedFish, HttpStatus.CREATED);
 
@@ -71,6 +84,14 @@ public class FishController {
     public ResponseEntity<Fish> updateFish(@PathVariable UUID fishId, @Valid @RequestBody Fish fish) {
         Fish updatedFish = fishService.updateFish(fish);
         return new ResponseEntity<>(updatedFish, HttpStatus.OK);
+    }
+
+    public boolean isFishDateToday(Fish fish) {
+        DateTimeFormatter formatter = DateTimeFormatter.ISO_DATE_TIME;
+        ZonedDateTime fishDateTime = ZonedDateTime.parse(fish.getDate(), formatter);
+        LocalDate fishDate = fishDateTime.withZoneSameInstant(ZoneId.systemDefault()).toLocalDate();
+        LocalDate today = LocalDate.now(ZoneId.systemDefault());
+        return fishDate.equals(today);
     }
 
 }
