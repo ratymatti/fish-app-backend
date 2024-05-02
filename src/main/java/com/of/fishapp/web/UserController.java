@@ -19,7 +19,6 @@ import com.of.fishapp.exception.EntityNotFoundException;
 import com.google.firebase.auth.FirebaseAuthException;
 import com.of.fishapp.dto.IdToken;
 import com.of.fishapp.dto.UserDetails;
-import com.of.fishapp.entity.Fish;
 import com.of.fishapp.service.UserService;
 
 import com.of.fishapp.service.FirebaseAuthenticator;
