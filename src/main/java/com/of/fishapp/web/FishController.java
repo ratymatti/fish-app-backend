@@ -8,7 +8,6 @@ import com.of.fishapp.dto.IdToken;
 import com.of.fishapp.entity.Fish;
 import com.of.fishapp.entity.User;
 import com.of.fishapp.entity.WeatherObject;
-import com.of.fishapp.exception.EntityNotFoundException;
 import com.of.fishapp.service.FirebaseAuthenticator;
 import com.of.fishapp.service.FishService;
 import com.of.fishapp.service.UserService;
@@ -22,8 +21,6 @@ import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
 
 import java.util.UUID;
-
-import static com.of.fishapp.util.IdTokenUtil.removeBearerPrefix;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -47,16 +44,7 @@ public class FishController {
     public ResponseEntity<Fish> saveFish(@Valid @RequestBody Fish fish,
             @RequestHeader("Authorization") IdToken idToken) {
         try {
-            removeBearerPrefix(idToken);
-            if (!authenticator.verifyIdToken(idToken)) {
-                return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
-            }
-            String googleId = authenticator.getUidFromToken(idToken);
-            User user = userService.getUserByGoogleId(googleId);
-
-            if (user == null) {
-                throw new EntityNotFoundException(User.class);
-            }
+            User user = authenticator.validateUser(idToken);
 
             fish.setUser(user);
 
