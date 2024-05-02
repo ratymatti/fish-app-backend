@@ -45,19 +45,6 @@ public class UserController {
         return new ResponseEntity<>(user.getLocations(), HttpStatus.OK);
     }
 
-    @GetMapping("/fishes")
-    public ResponseEntity<List<Fish>> getFishesByUser(@RequestHeader("Authorization") IdToken idToken) {
-        try {
-            User user = authenticator.validateUser(idToken);
-
-            List<Fish> userFishes = user.getFishes();
-
-            return new ResponseEntity<>(userFishes, HttpStatus.OK);
-        } catch (FirebaseAuthException e) {
-            return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
-        }
-    }
-
     @PostMapping("/authenticate")
     public ResponseEntity<String> authenticateUser(@RequestHeader("Authorization") IdToken idToken) {
         try {
