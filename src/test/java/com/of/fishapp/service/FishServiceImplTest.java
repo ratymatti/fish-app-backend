@@ -124,7 +124,7 @@ public class FishServiceImplTest {
         UUID fishId = UUID.randomUUID();
         fish.setId(fishId);
         fish.setLength(101);
-        fish.setLocationName("Test");
+        fish.setLocation("Test");
         return fish;
     }
 }

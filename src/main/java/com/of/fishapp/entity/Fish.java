@@ -64,7 +64,7 @@ public class Fish {
 
     @NotBlank
     @Nonnull
-    private String locationName;
+    private String location;
 
     private String comment;
 
