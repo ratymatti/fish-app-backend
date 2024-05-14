@@ -38,7 +38,7 @@ public class WeatherApiClientTest {
 
     @InjectMocks
     private WeatherApiClient weatherApiClient;
-/* 
+
     @Test
     public void testFetchWeatherData() {
         Geolocation location = new Geolocation(65.96667, 29.18333);
@@ -51,13 +51,13 @@ public class WeatherApiClientTest {
         WeatherObject expectedWeatherObject = createWeatherObject(user);
 
         lenient().when(restTemplate.getForEntity(anyString(), any())).thenReturn(responseEntity);
-        when(weatherDataMapper.createWeatherObject(any(), any(), any(), any())).thenReturn(expectedWeatherObject);
+        when(weatherDataMapper.createWeatherObject(any(), any(), any())).thenReturn(expectedWeatherObject);
 
-        WeatherObject actualWeatherObject = weatherApiClient.fetchWeatherData(location, type, user);
+        WeatherObject actualWeatherObject = weatherApiClient.fetchWeatherData(location, type);
 
         assertEquals(expectedWeatherObject, actualWeatherObject);
         assertEquals(HttpStatus.OK, responseEntity.getStatusCode());
-    } */
+    } 
 
     private WeatherObject createWeatherObject(User user) {
 

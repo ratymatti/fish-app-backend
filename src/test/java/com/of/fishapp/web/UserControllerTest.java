@@ -1,8 +1,6 @@
 package com.of.fishapp.web;
 
-
 import com.google.firebase.auth.FirebaseAuthException;
-
 import com.of.fishapp.dto.IdToken;
 
 import com.of.fishapp.entity.Location;
@@ -10,7 +8,6 @@ import com.of.fishapp.entity.User;
 import com.of.fishapp.exception.EntityNotFoundException;
 import com.of.fishapp.service.FirebaseAuthenticator;
 import com.of.fishapp.service.UserService;
-import com.of.fishapp.web.UserController;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -20,11 +17,9 @@ import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -34,7 +29,6 @@ import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
-
 
 import java.util.ArrayList;
 import java.util.List;
